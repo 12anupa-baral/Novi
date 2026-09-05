@@ -29,6 +29,7 @@ A modern, responsive landing page for **Novi** – a calm workspace for small, f
 
 
 ## 📁 Project Structure
+```
 src/
 ├── components/
 │   ├── common/               # Reusable UI primitives
@@ -60,7 +61,7 @@ src/
 ├── App.tsx
 ├── main.tsx
 └── index.css
-
+```
 
 ## 🧩 Key Components
 
@@ -89,8 +90,6 @@ src/
 ### `LiveBoard`
 - Mockup of a Kanban board with live notifications
 - Uses data from `mockdata.ts`
-
----
 
 ## 🚦 Getting Started
 
