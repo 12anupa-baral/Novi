@@ -69,14 +69,20 @@ const TaskCard = ({
 
 //  Add Task Button
 
-const AddTaskButton = () => (
-  <div
-    className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg cursor-pointer group"
+interface AddTaskButtonProps {
+  onClick: () => void;
+}
+
+const AddTaskButton = ({ onClick }: AddTaskButtonProps) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="group flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-left transition-colors hover:bg-white/[0.04]"
     style={{ border: `1px dashed ${C.fgDim}`, color: C.fgDim }}
   >
-    <Plus className="w-3 h-3" stroke="currentColor" strokeWidth={1.5} />
+    <Plus className="w-3 h-3 transition-transform group-hover:rotate-90" stroke="currentColor" strokeWidth={1.5} />
     <span className="text-xs">Add task</span>
-  </div>
+  </button>
 );
 
 //  LiveBoard
@@ -84,6 +90,8 @@ const AddTaskButton = () => (
 const LiveBoard = () => {
   const [notifIdx, setNotifIdx] = useState(0);
   const [notifKey, setNotifKey] = useState(0);
+  const [activeSidebar, setActiveSidebar] = useState("My workspace");
+  const [addedTasks, setAddedTasks] = useState(0);
   useEffect(() => {
     const id = setInterval(() => {
       setNotifIdx((i) => (i + 1) % NOTIFS.length);
@@ -192,19 +200,22 @@ const LiveBoard = () => {
             style={{ borderRight: `1px solid ${C.border}` }}
           >
             {SIDEBAR_ITEMS.map(({ icon, label, active }) => (
-              <div
+              <button
+                type="button"
                 key={label}
-                className="flex items-center gap-2 px-2 py-1.5 rounded-md text-xs cursor-pointer"
+                onClick={() => setActiveSidebar(label)}
+                aria-pressed={activeSidebar === label}
+                className="flex items-center gap-2 px-2 py-1.5 rounded-md text-xs text-left transition-colors hover:bg-white/[0.04]"
                 style={{
-                  background: active ? C.accentBg : "transparent",
-                  color: active ? C.accent : C.fgMuted,
+                  background: activeSidebar === label ? C.accentBg : "transparent",
+                  color: activeSidebar === label ? C.accent : C.fgMuted,
                 }}
               >
                 <span style={{ fontSize: 10, opacity: active ? 1 : 0.6 }}>
                   {icon}
                 </span>
                 {label}
-              </div>
+              </button>
             ))}
             <div
               className="mt-auto pt-3"
@@ -257,7 +268,22 @@ const LiveBoard = () => {
                     <TaskCard key={task.title} {...task} />
                   ))}
 
-                  <AddTaskButton />
+                  {col.col === "To do" &&
+                    Array.from({ length: addedTasks }, (_, index) => (
+                      <TaskCard
+                        key={`new-task-${index}`}
+                        title="New team task"
+                        tag="new"
+                        tc="#24301b"
+                        tt={C.accent}
+                        assignee="Y"
+                        active
+                      />
+                    ))}
+
+                  <AddTaskButton
+                    onClick={() => setAddedTasks((count) => count + 1)}
+                  />
                 </div>
               ))}
             </div>
