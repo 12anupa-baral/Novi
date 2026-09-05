@@ -45,7 +45,7 @@ const Hero: React.FC<HeroProps> = ({ openModal }) => {
                 className="w-1.5 h-1.5 rounded-full animate-pulse"
                 style={{ background: C.accent }}
               />
-              Now in public beta · Free up to 10 members
+              Try now and manage your project with ease
             </div>
           </div>
 
@@ -76,7 +76,7 @@ const Hero: React.FC<HeroProps> = ({ openModal }) => {
               size="lg"
               className="shadow-[0_0_28px_rgba(108,92,231,0.28)] hover:shadow-[0_0_40px_rgba(108,92,231,0.42)] hover:-translate-y-0.5"
             >
-              Start free — no card needed
+              Start free — No card needed
             </Button>
 
             <Button

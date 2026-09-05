@@ -1,18 +1,33 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useSyncExternalStore,
+} from "react";
 import type { ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { C } from "../../theme/color";
 
 function useMediaQuery(query: string) {
-  const [matches, setMatches] = useState(false);
-  useEffect(() => {
-    const media = window.matchMedia(query);
-    if (media.matches !== matches) setMatches(media.matches);
-    const listener = () => setMatches(media.matches);
-    window.addEventListener("resize", listener);
-    return () => window.removeEventListener("resize", listener);
-  }, [matches, query]);
-  return matches;
+  const subscribe = useCallback(
+    (callback: () => void) => {
+      const media = window.matchMedia(query);
+
+      media.addEventListener("change", callback);
+
+      return () => media.removeEventListener("change", callback);
+    },
+    [query],
+  );
+
+  const getSnapshot = useCallback(() => {
+    return window.matchMedia(query).matches;
+  }, [query]);
+
+  const getServerSnapshot = useCallback(() => false, []);
+
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 
 export interface CarouselProps {
@@ -40,16 +55,21 @@ export const Carousel: React.FC<CarouselProps> = ({
 }) => {
   const isMobile = useMediaQuery("(max-width: 640px)");
   const isTablet = useMediaQuery("(min-width: 641px) and (max-width: 1024px)");
+
   const effectivePeek = isMobile ? 0 : isTablet ? 10 : peek;
+
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [itemWidth, setItemWidth] = useState(0);
   const trackRef = useRef<HTMLDivElement>(null);
+
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartX, setDragStartX] = useState(0);
   const [dragOffsetX, setDragOffsetX] = useState(0);
   const [dragCurrentX, setDragCurrentX] = useState(0);
+
   const totalItems = items.length;
   const cloneCount = itemsPerView;
+
   const clonedItems = [
     ...items.slice(-cloneCount),
     ...items,
@@ -57,60 +77,84 @@ export const Carousel: React.FC<CarouselProps> = ({
   ];
 
   const [virtualIndex, setVirtualIndex] = useState(cloneCount);
-  const realIndex = (virtualIndex - cloneCount + totalItems) % totalItems;
+
+  const realIndex =
+    totalItems > 0 ? (virtualIndex - cloneCount + totalItems) % totalItems : 0;
 
   useEffect(() => {
     const updateWidth = () => {
       if (trackRef.current) {
-        const firstChild = trackRef.current.children[0] as HTMLElement;
+        const firstChild = trackRef.current.children[0] as
+          HTMLElement | undefined;
+
         if (firstChild) {
           setItemWidth(firstChild.offsetWidth + gap);
         }
       }
     };
+
     updateWidth();
+
     window.addEventListener("resize", updateWidth);
+
     return () => window.removeEventListener("resize", updateWidth);
   }, [itemsPerView, gap]);
 
-  const goTo = (index: number, animate = true) => {
-    if (isTransitioning && animate) return;
-    setVirtualIndex(index);
-    setIsTransitioning(animate);
-    if (!animate) {
-      setTimeout(() => setIsTransitioning(false), 0);
-    } else {
-      setTimeout(() => setIsTransitioning(false), 300);
-    }
-  };
+  const goTo = useCallback(
+    (index: number, animate = true) => {
+      if (isTransitioning && animate) return;
 
-  const next = () => {
+      setVirtualIndex(index);
+      setIsTransitioning(animate);
+
+      if (!animate) {
+        setTimeout(() => setIsTransitioning(false), 0);
+      } else {
+        setTimeout(() => setIsTransitioning(false), 300);
+      }
+    },
+    [isTransitioning],
+  );
+
+  const next = useCallback(() => {
     const nextIndex = virtualIndex + 1;
     goTo(nextIndex);
-  };
+  }, [virtualIndex, goTo]);
 
-  const prev = () => {
+  const prev = useCallback(() => {
     const prevIndex = virtualIndex - 1;
     goTo(prevIndex);
-  };
+  }, [virtualIndex, goTo]);
 
   const handleTransitionEnd = () => {
     setIsTransitioning(false);
+
     const upperBound = cloneCount + totalItems;
+
     if (virtualIndex >= upperBound) {
       const newIndex = virtualIndex - totalItems;
+
       setVirtualIndex(newIndex);
+
       if (trackRef.current) {
         trackRef.current.style.transition = "none";
-        trackRef.current.offsetHeight;
+
+        // Force browser reflow so the transition reset is applied.
+        void trackRef.current.offsetHeight;
+
         trackRef.current.style.transition = "";
       }
     } else if (virtualIndex < cloneCount) {
       const newIndex = virtualIndex + totalItems;
+
       setVirtualIndex(newIndex);
+
       if (trackRef.current) {
         trackRef.current.style.transition = "none";
-        trackRef.current.offsetHeight;
+
+        // Force browser reflow so the transition reset is applied.
+        void trackRef.current.offsetHeight;
+
         trackRef.current.style.transition = "";
       }
     }
@@ -119,10 +163,12 @@ export const Carousel: React.FC<CarouselProps> = ({
   // Drag handlers
   const handleDragStart = (clientX: number) => {
     if (isTransitioning) return;
+
     setIsDragging(true);
     setDragStartX(clientX);
     setDragCurrentX(clientX);
     setDragOffsetX(0);
+
     if (trackRef.current) {
       trackRef.current.style.transition = "none";
     }
@@ -130,12 +176,14 @@ export const Carousel: React.FC<CarouselProps> = ({
 
   const handleDragMove = (clientX: number) => {
     if (!isDragging) return;
+
     setDragCurrentX(clientX);
     setDragOffsetX(clientX - dragStartX);
   };
 
   const handleDragEnd = () => {
     if (!isDragging) return;
+
     setIsDragging(false);
 
     if (trackRef.current) {
@@ -143,6 +191,7 @@ export const Carousel: React.FC<CarouselProps> = ({
     }
 
     const diff = dragCurrentX - dragStartX;
+
     if (Math.abs(diff) > dragThreshold) {
       if (diff < 0) {
         next();
@@ -150,12 +199,15 @@ export const Carousel: React.FC<CarouselProps> = ({
         prev();
       }
     }
+
     setDragOffsetX(0);
   };
 
   const onMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
+
     handleDragStart(e.clientX);
+
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
   };
@@ -166,36 +218,49 @@ export const Carousel: React.FC<CarouselProps> = ({
 
   const onMouseUp = () => {
     handleDragEnd();
+
     window.removeEventListener("mousemove", onMouseMove);
     window.removeEventListener("mouseup", onMouseUp);
   };
 
   const onTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
+
     handleDragStart(touch.clientX);
-    window.addEventListener("touchmove", onTouchMove, { passive: false });
+
+    window.addEventListener("touchmove", onTouchMove, {
+      passive: false,
+    });
+
     window.addEventListener("touchend", onTouchEnd);
     window.addEventListener("touchcancel", onTouchEnd);
   };
 
   const onTouchMove = (e: TouchEvent) => {
     e.preventDefault();
+
     const touch = e.touches[0];
+
     handleDragMove(touch.clientX);
   };
 
   const onTouchEnd = () => {
     handleDragEnd();
+
     window.removeEventListener("touchmove", onTouchMove);
     window.removeEventListener("touchend", onTouchEnd);
     window.removeEventListener("touchcancel", onTouchEnd);
   };
 
   useEffect(() => {
-    if (!autoPlay || totalItems <= itemsPerView || isDragging) return;
+    if (!autoPlay || totalItems <= itemsPerView || isDragging) {
+      return;
+    }
+
     const timer = setInterval(next, autoPlay);
+
     return () => clearInterval(timer);
-  }, [virtualIndex, autoPlay, isDragging]);
+  }, [autoPlay, isDragging, itemsPerView, totalItems, next]);
 
   const handleContainerKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "ArrowLeft") {
@@ -222,7 +287,10 @@ export const Carousel: React.FC<CarouselProps> = ({
     >
       <div
         className="py-8 overflow-visible"
-        style={{ paddingLeft: effectivePeek, paddingRight: effectivePeek }}
+        style={{
+          paddingLeft: effectivePeek,
+          paddingRight: effectivePeek,
+        }}
       >
         <div
           className="overflow-visible cursor-grab active:cursor-grabbing select-none"
@@ -247,7 +315,9 @@ export const Carousel: React.FC<CarouselProps> = ({
                 key={idx}
                 className="flex-shrink-0 overflow-visible"
                 style={{
-                  width: `calc((100% - ${(itemsPerView - 1) * gap}px) / ${itemsPerView})`,
+                  width: `calc((100% - ${
+                    (itemsPerView - 1) * gap
+                  }px) / ${itemsPerView})`,
                 }}
               >
                 {item}
@@ -276,6 +346,7 @@ export const Carousel: React.FC<CarouselProps> = ({
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
+
           <button
             onClick={next}
             className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-colors"
