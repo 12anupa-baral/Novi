@@ -9,7 +9,7 @@ interface CallToActionProps {
 const CallToAction = ({ openModal }: CallToActionProps) => {
   const ctaRef = useFadeIn(0);
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8">
+    <section id="pricing" aria-labelledby="pricing-title" className="max-w-6xl mx-auto px-6 py-8">
       <div ref={ctaRef} className="fade-in-up">
         <div
           className="relative rounded-3xl overflow-hidden"
@@ -35,7 +35,7 @@ const CallToAction = ({ openModal }: CallToActionProps) => {
               className="font-display text-4xl md:text-5xl font-light leading-snug mb-4"
               style={{ color: C.fg }}
             >
-              Ready to calm
+              <span id="pricing-title">Ready to calm</span>
               <br />
               <em className="italic" style={{ color: C.accent }}>
                 the chaos?
@@ -58,7 +58,7 @@ const CallToAction = ({ openModal }: CallToActionProps) => {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

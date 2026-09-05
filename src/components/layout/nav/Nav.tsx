@@ -16,9 +16,15 @@ export const Nav = () => {
 
   const toggleMobile = () => setMobileOpen((v) => !v);
   const closeMobile = () => setMobileOpen(false);
+  const linkTargets: Record<string, string> = {
+    Product: "#features",
+    Pricing: "#pricing",
+    Blog: "#testimonials",
+    Changelog: "#footer",
+  };
 
   return (
-    <header className="sticky top-0 z-40 w-full">
+    <header className="sticky top-0 z-40 w-full" aria-label="Primary navigation">
       <div className="max-w-6xl mx-auto px-6 pt-4 pb-2">
         {/* Floating pill */}
         <div
@@ -54,7 +60,7 @@ export const Nav = () => {
             {NAV_LINKS.map((l) => (
               <a
                 key={l}
-                href="#"
+                href={linkTargets[l]}
                 className="px-3 py-1.5 rounded-lg text-sm transition-all duration-150"
                 style={{ color: C.fgMuted }}
                 onMouseEnter={(e) => {
@@ -74,7 +80,7 @@ export const Nav = () => {
           <div className="flex items-center gap-2">
             <Button
               as="a"
-              href="#"
+              href="#footer"
               variant="ghost"
               size="sm"
               className="hidden md:inline-flex"
@@ -85,7 +91,7 @@ export const Nav = () => {
             {/*  primary button */}
             <Button
               as="a"
-              href="#"
+              href="#pricing"
               variant="primary"
               size="sm"
               className="text-white"
@@ -94,20 +100,24 @@ export const Nav = () => {
             </Button>
 
             {/* Mobile toggle */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="md:hidden p-1.5"
-              onClick={toggleMobile}
-              leftIcon={mobileOpen ? X : Menu}
-            />
+              <Button
+                variant="ghost"
+                size="sm"
+                className="md:hidden p-1.5"
+                onClick={toggleMobile}
+                leftIcon={mobileOpen ? X : Menu}
+                aria-expanded={mobileOpen}
+                aria-controls="mobile-navigation"
+                aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              />
           </div>
         </div>
 
         {/* Mobile menu */}
         {mobileOpen && (
           <div
-            className="md:hidden mt-1 px-4 py-3 rounded-2xl flex flex-col gap-1"
+            id="mobile-navigation"
+            className="md:hidden mt-1 px-4 py-3 rounded-2xl flex flex-col gap-1 animate-[slideIn_180ms_ease-out]"
             style={{
               background: "rgba(255,255,255,0.95)",
               border: "1px solid rgba(0,0,0,0.08)",

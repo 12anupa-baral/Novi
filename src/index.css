@@ -2,12 +2,25 @@
 @import url("https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
-html,
+:root {
+  --canvas: #fafaf9;
+  --ink: #12110f;
+  --muted: #6e6a64;
+  --accent: #6c5ce7;
+  --accent-soft: #f0eeff;
+  --line: rgba(18, 17, 15, 0.1);
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--canvas);
+}
+
 body,
 #root {
-  height: 100%;
-  background-color: #fafaf9;
-  color: #12110f;
+  min-height: 100%;
+  background-color: var(--canvas);
+  color: var(--ink);
   font-family: "Instrument Sans", sans-serif;
   -webkit-font-smoothing: antialiased;
 }
@@ -140,4 +153,19 @@ body,
 .fade-in-up.visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+:where(a, button, input):focus-visible {
+  outline: 3px solid rgba(108, 92, 231, 0.45);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .fade-in-up { opacity: 1; transform: none; }
 }

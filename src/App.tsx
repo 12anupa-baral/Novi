@@ -18,11 +18,13 @@ export default function App() {
     <div style={{ background: C.bg, color: C.fg, minHeight: "100%" }}>
       {modalOpen && <StepsModal isOpen={modalOpen} onClose={closeModal} />}
       <Nav />
-      <Hero openModal={openModal} />
-      <Features />
-      <Stats />
-      <Testimonials />
-      <CallToAction openModal={openModal} />
+      <main>
+        <Hero openModal={openModal} />
+        <Features />
+        <Stats />
+        <Testimonials />
+        <CallToAction openModal={openModal} />
+      </main>
       <Footer />
     </div>
   );

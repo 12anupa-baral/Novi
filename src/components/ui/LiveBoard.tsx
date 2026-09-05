@@ -84,7 +84,6 @@ const AddTaskButton = () => (
 const LiveBoard = () => {
   const [notifIdx, setNotifIdx] = useState(0);
   const [notifKey, setNotifKey] = useState(0);
-
   useEffect(() => {
     const id = setInterval(() => {
       setNotifIdx((i) => (i + 1) % NOTIFS.length);
