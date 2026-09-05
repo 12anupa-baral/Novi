@@ -28,7 +28,7 @@ A modern, responsive landing page for **Novi** – a calm workspace for small, f
 | [React Hooks](https://react.dev/reference/react) | State & lifecycle       |
 
 ## 📁 Project Structure
-
+```
 src/
 ├── components/
 │ ├── common/ # Reusable UI primitives
@@ -60,6 +60,7 @@ src/
 ├── App.tsx
 ├── main.tsx
 └── index.css
+```
 
 ## 🧩 Key Components
 
@@ -93,8 +94,6 @@ src/
 
 - Mockup of a Kanban board with live notifications
 - Uses data from `mockdata.ts`
-
----
 
 ## 🚦 Getting Started
 
