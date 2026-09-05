@@ -2,10 +2,7 @@
 
 A modern, responsive landing page for **Novi** – a calm workspace for small, fast‑moving teams. Built with React, TypeScript, and Tailwind CSS, featuring smooth animations, a fully interactive carousel, and a modular component architecture.
 
-![Novi Screenshot](https://via.placeholder.com/800x400?text=Novi+Landing+Page)  
-*(Replace with an actual screenshot of your project)*
-
----
+![Novi Screenshot](./src/assets/Home.png)
 
 ## 🚀 Features
 
@@ -19,8 +16,6 @@ A modern, responsive landing page for **Novi** – a calm workspace for small, f
 - **Lucide icons** for clean, scalable vector graphics
 - **Fully responsive** – mobile, tablet, and desktop optimised
 
----
-
 ## 🛠️ Tech Stack
 
 | Technology | Purpose |
@@ -32,44 +27,40 @@ A modern, responsive landing page for **Novi** – a calm workspace for small, f
 | [Lucide React](https://lucide.dev/) | Icon library |
 | [React Hooks](https://react.dev/reference/react) | State & lifecycle |
 
----
 
 ## 📁 Project Structure
 src/
 ├── components/
-│ ├── common/ # Reusable UI primitives
-│ │ ├── Button/
-│ │ ├── Card/
-│ │ ├── Input/
-│ │ ├── Modal/
-│ │ └── Carousel/
-│ ├── layout/ # Layout components
-│ │ ├── Nav/
-│ │ └── Footer/
-│ ├── sections/ # Page sections
-│ │ ├── Hero/
-│ │ ├── Features/
-│ │ ├── Stats/
-│ │ ├── Testimonials/
-│ │ └── CTA/
-│ ├── ui/ # Complex interactive components
-│ │ ├── LiveBoard/
-│ │ └── StepsModal/
-│ └── icons/ # Custom SVG icons
-├── data/ # Mock data & constants
-│ └── mockdata.ts
-├── hooks/ # Custom React hooks
-│ ├── useFadeIn.ts
-│ └── useCountUp.ts
-├── theme/ # Design tokens
-│ └── color.ts
+│   ├── common/               # Reusable UI primitives
+│   │   ├── Button/
+│   │   ├── Card/
+│   │   ├── Input/
+│   │   ├── Modal/
+│   │   └── Carousel/
+│   ├── layout/               # Layout components
+│   │   ├── Nav/
+│   │   └── Footer/
+│   ├── sections/             # Page sections
+│   │   ├── Hero/
+│   │   ├── Features/
+│   │   ├── Stats/
+│   │   ├── Testimonials/
+│   │   └── CTA/
+│   ├── ui/                   # Complex interactive components
+│   │   ├── LiveBoard/
+│   │   └── StepsModal/
+│   └── icons/                # Custom SVG icons
+├── data/                     # Mock data & constants
+│   └── mockdata.ts
+├── hooks/                    # Custom React hooks
+│   ├── useFadeIn.ts
+│   └── useCountUp.ts
+├── theme/                    # Design tokens
+│   └── color.ts
 ├── App.tsx
 ├── main.tsx
 └── index.css
 
-text
-
----
 
 ## 🧩 Key Components
 
@@ -113,20 +104,19 @@ text
 # Clone the repository
 git clone https://github.com/12anupa-baral/Novi.git
 cd Novi
+```
 
+```bash
 # Install dependencies
 npm install
-# or
-yarn install
+```
 Development
-bash
+``` bash
 npm run dev
-# or
-yarn dev
+```
 The app will be available at http://localhost:5173.
 
 Build for Production
-bash
+```bash
 npm run build
-# or
-yarn build
+```
