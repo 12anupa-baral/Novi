@@ -1,15 +1,15 @@
-import React, { forwardRef } from 'react';
-import type { ReactNode } from 'react';
-import { C } from '../../theme/color';
-import type{ LucideIcon } from 'lucide-react';
+import React, { forwardRef } from "react";
+import type { ReactNode } from "react";
+import { C } from "../../theme/color";
+import type { LucideIcon } from "lucide-react";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: ReactNode;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
+  size?: "sm" | "md" | "lg";
   leftIcon?: LucideIcon;
   rightIcon?: LucideIcon;
-  as?: 'button' | 'a';
+  as?: "button" | "a";
   className?: string;
   disabled?: boolean;
   href?: string;
@@ -29,25 +29,36 @@ interface VariantStyle {
   };
 }
 
-const variantStyles: Record<NonNullable<ButtonProps['variant']>, VariantStyle> = {
+const variantStyles: Record<
+  NonNullable<ButtonProps["variant"]>,
+  VariantStyle
+> = {
   primary: {
-    base: { background: C.accent, color: C.bg, border: 'none' },
+    base: { background: C.accent, color: C.bg, border: "none" },
     hover: { opacity: 0.88 },
   },
   secondary: {
-    base: { background: 'rgba(255,255,255,0.05)', color: C.fg, border: `1px solid ${C.border}` },
-    hover: { background: 'rgba(255,255,255,0.09)' },
+    base: {
+      background: "rgba(255,255,255,0.05)",
+      color: C.fg,
+      border: `1px solid ${C.border}`,
+    },
+    hover: { background: "rgba(255,255,255,0.09)" },
   },
   outline: {
-    base: { background: 'transparent', color: C.fgMuted, border: `1px solid ${C.border}` },
+    base: {
+      background: "transparent",
+      color: C.fgMuted,
+      border: `1px solid ${C.border}`,
+    },
     hover: { color: C.fg, borderColor: C.borderHi },
   },
   ghost: {
-    base: { background: 'transparent', color: C.fgMuted, border: 'none' },
-    hover: { color: C.fg, background: 'rgba(255,255,255,0.03)' },
+    base: { background: "transparent", color: C.fgMuted, border: "none" },
+    hover: { color: C.fg, background: "rgba(255,255,255,0.03)" },
   },
   danger: {
-    base: { background: '#e74c3c', color: '#fff', border: 'none' },
+    base: { background: "#e74c3c", color: "#fff", border: "none" },
     hover: { opacity: 0.85 },
   },
 };
@@ -56,22 +67,22 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       children,
-      variant = 'primary',
-      size = 'md',
+      variant = "primary",
+      size = "md",
       leftIcon: LeftIcon,
       rightIcon: RightIcon,
-      as: Component = 'button',
-      className = '',
+      as: Component = "button",
+      className = "",
       disabled = false,
       href,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const sizeClasses = {
-      sm: 'px-3 py-1.5 text-xs',
-      md: 'px-5 py-2.5 text-sm',
-      lg: 'px-7 py-3.5 text-base',
+      sm: "px-3 py-1.5 text-xs",
+      md: "px-5 py-2.5 text-sm",
+      lg: "px-7 py-3.5 text-base",
     };
 
     const { base, hover } = variantStyles[variant];
@@ -80,7 +91,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const style = {
       ...base,
-      cursor: disabled ? 'not-allowed' : 'pointer',
+      cursor: disabled ? "not-allowed" : "pointer",
       opacity: disabled ? 0.5 : 1,
     };
 
@@ -99,7 +110,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       el.style.background = base.background;
       el.style.color = base.color;
       el.style.borderColor = base.border;
-      el.style.opacity = '1';
+      el.style.opacity = "1";
     };
 
     const content = (
@@ -110,10 +121,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       </>
     );
 
-    if (Component === 'a') {
+    if (Component === "a") {
       return (
         <a
-          href={href || '#'}
+          href={href || "#"}
           className={commonClasses}
           style={style}
           onMouseEnter={handleHoverStart}
@@ -138,9 +149,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {content}
       </button>
     );
-  }
+  },
 );
 
-Button.displayName = 'Button';
+Button.displayName = "Button";
 
 export default Button;

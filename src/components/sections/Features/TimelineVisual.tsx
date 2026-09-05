@@ -20,7 +20,7 @@ export const TimelineVisual = () => {
           </span>
           <div
             className="flex-1 h-1 sm:h-1.5 rounded-full relative"
-            style={{  background: "#e8e8f0" }}
+            style={{ background: "#e8e8f0" }}
           >
             <div
               className="absolute h-full rounded-full"

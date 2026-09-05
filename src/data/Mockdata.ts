@@ -1,7 +1,7 @@
 import { C } from "../theme/color";
 import type { Notification, Testimonial, ColumnData } from "../types";
 
-// Navigation 
+// Navigation
 
 export const NAV_LINKS = ["Product", "Pricing", "Blog", "Changelog"] as const;
 
@@ -135,10 +135,10 @@ export const FOOTER_GROUPS: Record<string, string[]> = {
 
 //liveboard sidebaritems
 export const SIDEBAR_ITEMS = [
-  { icon: '⌂', label: 'Home', active: false },
-  { icon: '▦', label: 'Sprint 9', active: true },
-  { icon: '≡', label: 'Backlog', active: false },
-  { icon: '◷', label: 'Timeline', active: false },
-  { icon: '⌁', label: 'Threads', active: false },
-  { icon: '◈', label: 'Docs', active: false },
+  { icon: "⌂", label: "Home", active: false },
+  { icon: "▦", label: "Sprint 9", active: true },
+  { icon: "≡", label: "Backlog", active: false },
+  { icon: "◷", label: "Timeline", active: false },
+  { icon: "⌁", label: "Threads", active: false },
+  { icon: "◈", label: "Docs", active: false },
 ] as const;

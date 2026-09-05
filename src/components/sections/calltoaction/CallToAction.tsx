@@ -1,11 +1,12 @@
-import { C } from "../../theme/color";
-import { useFadeIn } from "../../hooks/useFadeIn";
-import Button from "../common/Button";
+import { C } from "../../../theme/color";
+import { useFadeIn } from "../../../hooks/useFadeIn";
+import Button from "../../common/Button";
+
 interface CallToActionProps {
   openModal: () => void;
 }
 
-export const CallToAction = ({ openModal }: CallToActionProps) => {
+const CallToAction = ({ openModal }: CallToActionProps) => {
   const ctaRef = useFadeIn(0);
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
@@ -18,7 +19,6 @@ export const CallToAction = ({ openModal }: CallToActionProps) => {
             border: `1px solid ${C.borderHi}`,
           }}
         >
-          {/* Subtle grid*/}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
@@ -61,3 +61,5 @@ export const CallToAction = ({ openModal }: CallToActionProps) => {
     </div>
   );
 };
+
+export default CallToAction;

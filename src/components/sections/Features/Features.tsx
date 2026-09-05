@@ -7,7 +7,7 @@ import ImportVisual from "./ImportVisual";
 import { C } from "../../../theme/color";
 import { LayoutGrid, MessageSquare, Clock, Import } from "lucide-react";
 
-export const Features: React.FC = () => {
+const Features: React.FC = () => {
   const featRef = useFadeIn(80);
 
   return (
@@ -29,18 +29,19 @@ export const Features: React.FC = () => {
           </p>
         </div>
 
-        {/* 
-          Grid:
-          - Mobile: 1 column, auto row height (content fits)
-          - Tablet+: 2-3 columns, equal row heights (auto-rows-[1fr])
-        */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 sm:auto-rows-[1fr]">
-          {/* Boards – spans 2 columns on tablet+ */}
+          {/* Boards */}
           <div className="sm:col-span-2 h-full">
             <FeatureCard
               className="h-full"
               accentColor={C.accent}
-              icon={<LayoutGrid className="w-4 h-4" stroke={C.accent} strokeWidth={1.5} />}
+              icon={
+                <LayoutGrid
+                  className="w-4 h-4"
+                  stroke={C.accent}
+                  strokeWidth={1.5}
+                />
+              }
               title="Boards that move at your speed"
               description="Plan sprints and track tasks without hunting through spreadsheets. Drag, drop, ship."
             >
@@ -48,12 +49,18 @@ export const Features: React.FC = () => {
             </FeatureCard>
           </div>
 
-          {/* Threads – 1 column */}
+          {/* Threads */}
           <div className="h-full">
             <FeatureCard
               className="h-full"
               accentColor={C.violet}
-              icon={<MessageSquare className="w-4 h-4" stroke={C.violet} strokeWidth={1.5} />}
+              icon={
+                <MessageSquare
+                  className="w-4 h-4"
+                  stroke={C.violet}
+                  strokeWidth={1.5}
+                />
+              }
               title="Threads, not another inbox"
               description="Keep project conversations attached to the work itself."
             >
@@ -61,12 +68,14 @@ export const Features: React.FC = () => {
             </FeatureCard>
           </div>
 
-          {/* Timeline – 1 column */}
+          {/* Timeline */}
           <div className="h-full">
             <FeatureCard
               className="h-full"
               accentColor={C.amber}
-              icon={<Clock className="w-4 h-4" stroke={C.amber} strokeWidth={1.5} />}
+              icon={
+                <Clock className="w-4 h-4" stroke={C.amber} strokeWidth={1.5} />
+              }
               title="One timeline for the whole team"
               description="Every deadline and milestone in one shared view."
             >
@@ -74,12 +83,13 @@ export const Features: React.FC = () => {
             </FeatureCard>
           </div>
 
-          {/* Import – spans 2 columns on tablet+ */}
           <div className="sm:col-span-2 h-full">
             <FeatureCard
               className="h-full"
               accentColor={C.cyan}
-              icon={<Import className="w-4 h-4" stroke={C.cyan} strokeWidth={1.5} />}
+              icon={
+                <Import className="w-4 h-4" stroke={C.cyan} strokeWidth={1.5} />
+              }
               title="Works the way you already do"
               description="Import from Trello, Asana, or a spreadsheet in minutes. Zero migration pain."
             >
@@ -91,3 +101,5 @@ export const Features: React.FC = () => {
     </section>
   );
 };
+
+export default Features;

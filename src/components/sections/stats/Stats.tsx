@@ -1,6 +1,6 @@
-import { useCountUp } from "../../hooks/useCountUp";
-import { useFadeIn } from "../../hooks/useFadeIn";
-import { C } from "../../theme/color";
+import { useCountUp } from "../../../hooks/useCountUp";
+import { useFadeIn } from "../../../hooks/useFadeIn";
+import { C } from "../../..//theme/color";
 
 interface StatProps {
   target: number;

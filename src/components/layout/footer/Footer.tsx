@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Check, X } from "lucide-react";
-import {LinkedInIcon,GithubIcon} from '../../../icons'
+import { LinkedInIcon, GithubIcon } from "../../../icons";
 import { C } from "../../../theme/color";
 import { FOOTER_GROUPS } from "../../../data/Mockdata";
 import Button from "../../common/Button";
@@ -43,24 +43,27 @@ const Footer = () => {
             </p>
 
             {submitted ? (
-              <div className="flex items-center gap-2 text-sm" style={{ color: C.green }}>
+              <div
+                className="flex items-center gap-2 text-sm"
+                style={{ color: C.green }}
+              >
                 <Check className="w-4 h-4" strokeWidth={2} />
                 You're on the list
               </div>
             ) : (
               <form className="flex gap-2" onSubmit={handleSubmit}>
-                 <Input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                placeholder="you@company.com"
-                variant="light"
-                className="flex-1 min-w-0"
-              />
-              <Button type="submit" variant="primary" size="sm">
-                Subscribe
-              </Button>
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  placeholder="you@company.com"
+                  variant="light"
+                  className="flex-1 min-w-0"
+                />
+                <Button type="submit" variant="primary" size="sm">
+                  Subscribe
+                </Button>
               </form>
             )}
           </div>
@@ -82,7 +85,9 @@ const Footer = () => {
                       className="text-sm transition-colors duration-150"
                       style={{ color: C.fgMuted }}
                       onMouseEnter={(e) => (e.currentTarget.style.color = C.fg)}
-                      onMouseLeave={(e) => (e.currentTarget.style.color = C.fgMuted)}
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.color = C.fgMuted)
+                      }
                     >
                       {link}
                     </a>

@@ -19,14 +19,13 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   children,
   accentColor = C.accent,
   colSpan = 1,
-  className = '',
+  className = "",
 }) => (
-  <Card
-    accentColor={accentColor}
-    colSpan={colSpan}
-    className={className}  
-  >
-    <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-4" style={{ background: `${accentColor}22` }}>
+  <Card accentColor={accentColor} colSpan={colSpan} className={className}>
+    <div
+      className="w-8 h-8 rounded-lg flex items-center justify-center mb-4"
+      style={{ background: `${accentColor}22` }}
+    >
       {icon}
     </div>
     <h3 className="text-base font-medium mb-1.5" style={{ color: C.fg }}>
@@ -39,4 +38,4 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   </Card>
 );
 
-export default FeatureCard
+export default FeatureCard;

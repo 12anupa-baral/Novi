@@ -44,7 +44,7 @@ export const ThreadsVisual = () => {
             style={{
               background: m.self ? "#f0eeff" : "#f8f8fb",
               border: `1px solid ${C.border}`,
-              color:  C.fg,
+              color: C.fg,
               borderRadius: m.self
                 ? "12px 12px 4px 12px"
                 : "12px 12px 12px 4px",

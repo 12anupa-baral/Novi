@@ -1,4 +1,3 @@
-// hooks/useCountUp.ts
 import { useEffect, useRef, useState } from "react";
 
 export function useCountUp(target: number = 0, suffix = "") {
@@ -26,7 +25,7 @@ export function useCountUp(target: number = 0, suffix = "") {
         };
         requestAnimationFrame(step);
       },
-      { threshold: 0.5 }
+      { threshold: 0.5 },
     );
 
     obs.observe(el);

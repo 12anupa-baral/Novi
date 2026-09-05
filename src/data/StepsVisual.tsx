@@ -39,7 +39,7 @@ export const STEPS: Step[] = [
           className="absolute bottom-3 right-3 w-8 h-8 rounded-full flex items-center justify-center"
           style={{ background: C.accent }}
         >
-        <Plus className="w-4 h-4" stroke="#0b0b0e" strokeWidth={2.5} />
+          <Plus className="w-4 h-4" stroke="#0b0b0e" strokeWidth={2.5} />
         </div>
       </div>
     ),
@@ -121,7 +121,11 @@ export const STEPS: Step[] = [
                 }}
               >
                 {done ? (
-               <Check className="w-2.5 h-2.5" stroke={C.green} strokeWidth={1.5} />
+                  <Check
+                    className="w-2.5 h-2.5"
+                    stroke={C.green}
+                    strokeWidth={1.5}
+                  />
                 ) : (
                   <div
                     className="w-1.5 h-1.5 rounded-full"

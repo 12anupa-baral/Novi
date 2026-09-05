@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Card } from "../common/Card";
-import { Carousel } from "../common/Carousel";
-import { C } from "../../theme/color";
+import { Card } from "../../common/Card";
+import { Carousel } from "../../common/Carousel";
+import { C } from "../../../theme/color";
 import { Star } from "lucide-react";
-import { QUOTES } from "../../data/Mockdata";
+import { QUOTES } from "../../../data/Mockdata";
 
 const TestimonialCard: React.FC<{ q: (typeof QUOTES)[0] }> = ({ q }) => (
   <Card
-   accentColor={C.violet}
+    accentColor={C.violet}
     className="w-full transition-all duration-300 hover:-translate-y-1"
     hoverShadow="rgba(108,92,231,0.25) 0px 8px 30px -4px, rgba(108,92,231,0.15) 0px 0px 0px 1px"
   >
@@ -48,8 +48,8 @@ const useItemsPerView = () => {
       else setItemsPerView(3);
     };
     update();
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
   }, []);
 
   return itemsPerView;

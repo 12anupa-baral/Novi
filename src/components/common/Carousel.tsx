@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import type { ReactNode } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { C } from '../../theme/color';
+import React, { useState, useEffect, useRef } from "react";
+import type { ReactNode } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { C } from "../../theme/color";
 
 function useMediaQuery(query: string) {
   const [matches, setMatches] = useState(false);
@@ -9,8 +9,8 @@ function useMediaQuery(query: string) {
     const media = window.matchMedia(query);
     if (media.matches !== matches) setMatches(media.matches);
     const listener = () => setMatches(media.matches);
-    window.addEventListener('resize', listener);
-    return () => window.removeEventListener('resize', listener);
+    window.addEventListener("resize", listener);
+    return () => window.removeEventListener("resize", listener);
   }, [matches, query]);
   return matches;
 }

@@ -11,7 +11,7 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ variant = "default", className = "", error = false, ...rest }, ref) => {
     const baseStyles = {
-       background: variant === "light" ? "rgba(255,255,255,0.6)" : C.surface,
+      background: variant === "light" ? "rgba(255,255,255,0.6)" : C.surface,
       border: `1px solid ${error ? "#e74c3c" : C.border}`,
       color: C.fg,
       outline: "none",

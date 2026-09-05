@@ -1,4 +1,3 @@
-// src/components/sections/Hero/Hero.tsx
 import { Play } from "lucide-react";
 import { useFadeIn } from "../../../hooks/useFadeIn";
 import { C } from "../../../theme/color";
@@ -6,7 +5,7 @@ import LiveBoard from "../../ui/LiveBoard";
 import Button from "../../common/Button";
 import type { HeroProps } from "./type";
 
-export const Hero: React.FC<HeroProps> = ({ openModal }) => {
+const Hero: React.FC<HeroProps> = ({ openModal }) => {
   const heroRef = useFadeIn(0);
 
   return (
@@ -22,7 +21,7 @@ export const Hero: React.FC<HeroProps> = ({ openModal }) => {
         }}
       />
 
-      {/* Radial glow – now using violet */}
+      {/* Radial glow */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -33,7 +32,6 @@ export const Hero: React.FC<HeroProps> = ({ openModal }) => {
 
       <div className="relative max-w-6xl mx-auto px-6 pt-20 pb-8">
         <div ref={heroRef} className="fade-in-up">
-          {/* Eyebrow */}
           <div className="flex justify-center mb-8">
             <div
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs"
@@ -107,3 +105,5 @@ export const Hero: React.FC<HeroProps> = ({ openModal }) => {
     </section>
   );
 };
+
+export default Hero;
