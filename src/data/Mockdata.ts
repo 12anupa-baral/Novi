@@ -3,7 +3,7 @@ import type { Notification, Testimonial, ColumnData } from "../types";
 
 // Navigation
 
-export const NAV_LINKS = ["Product", "Pricing", "Blog", "Changelog"] as const;
+export const NAV_LINKS = ["About", "Product", "Pricing", "Blog"] as const;
 
 // Live Board notifications
 export const NOTIFS: Notification[] = [

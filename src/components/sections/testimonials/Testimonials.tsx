@@ -61,7 +61,7 @@ const Testimonials = () => {
 
   return (
     <div className="py-8 px-10 overflow-hidden">
-      <div className="max-w-6xl mx-auto px-6 mb-10">
+      <div className="mb-10">
         <h2
           className="font-display text-2xl md:text-3xl font-light"
           style={{ color: C.fg }}

@@ -11,7 +11,7 @@ const Features: React.FC = () => {
   const featRef = useFadeIn(80);
 
   return (
-    <section id="features" className="max-w-6xl mx-auto px-6 py-8">
+    <div id="features" className="py-8">
       <div ref={featRef} className="fade-in-up">
         <div className="max-w-lg mb-12">
           <h2
@@ -98,7 +98,7 @@ const Features: React.FC = () => {
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 

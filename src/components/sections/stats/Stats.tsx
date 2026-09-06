@@ -37,7 +37,7 @@ export const Stats = () => {
         borderBottom: `1px solid ${C.border}`,
       }}
     >
-      <div ref={statsRef} className="fade-in-up max-w-6xl mx-auto px-6 py-16">
+      <div ref={statsRef} className="fade-in-up py-16">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <Stat target={2400} suffix="+" label="Teams using Novi" />
           <Stat target={98} suffix="%" label="Sprint completion rate" />

@@ -9,7 +9,7 @@ interface CallToActionProps {
 const CallToAction = ({ openModal }: CallToActionProps) => {
   const ctaRef = useFadeIn(0);
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8">
+    <div className="py-8">
       <div ref={ctaRef} className="fade-in-up">
         <div
           className="relative rounded-3xl overflow-hidden"

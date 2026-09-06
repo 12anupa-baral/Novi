@@ -30,7 +30,7 @@ const Hero: React.FC<HeroProps> = ({ openModal }) => {
         }}
       />
 
-      <div className="relative max-w-6xl mx-auto px-6 pt-20 pb-8">
+      <div className="relative pt-20 pb-8">
         <div ref={heroRef} className="fade-in-up">
           <div className="flex justify-center mb-8">
             <div

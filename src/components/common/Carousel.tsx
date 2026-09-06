@@ -138,10 +138,7 @@ export const Carousel: React.FC<CarouselProps> = ({
 
       if (trackRef.current) {
         trackRef.current.style.transition = "none";
-
-        // Force browser reflow so the transition reset is applied.
         void trackRef.current.offsetHeight;
-
         trackRef.current.style.transition = "";
       }
     } else if (virtualIndex < cloneCount) {
@@ -151,10 +148,7 @@ export const Carousel: React.FC<CarouselProps> = ({
 
       if (trackRef.current) {
         trackRef.current.style.transition = "none";
-
-        // Force browser reflow so the transition reset is applied.
         void trackRef.current.offsetHeight;
-
         trackRef.current.style.transition = "";
       }
     }
@@ -332,7 +326,7 @@ export const Carousel: React.FC<CarouselProps> = ({
         <>
           <button
             onClick={prev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-colors"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-colors cursor-pointer"
             style={{
               background: C.card,
               border: `1px solid ${C.border}`,
@@ -349,7 +343,7 @@ export const Carousel: React.FC<CarouselProps> = ({
 
           <button
             onClick={next}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-colors"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-colors cursor-pointer"
             style={{
               background: C.card,
               border: `1px solid ${C.border}`,

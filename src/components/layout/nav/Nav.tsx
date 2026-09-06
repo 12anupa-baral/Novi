@@ -1,8 +1,14 @@
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
 import { C } from "../../../theme/color";
 import { NAV_LINKS } from "../../../data/Mockdata";
 import Button from "../../common/Button";
+
+const navRoutes = NAV_LINKS.map((label) => ({
+  label,
+  path: `/${label.toLowerCase()}`,
+}));
 
 export const Nav = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -19,7 +25,7 @@ export const Nav = () => {
 
   return (
     <header className="sticky top-0 z-40 w-full">
-      <div className="max-w-6xl mx-auto px-6 pt-4 pb-2">
+      <div className="mx-auto pt-4 pb-2">
         {/* Floating pill */}
         <div
           className="flex items-center justify-between h-12 px-4 rounded-2xl transition-all duration-300"
@@ -35,8 +41,8 @@ export const Nav = () => {
           }}
         >
           {/* Logo */}
-          <a
-            href="#"
+          <Link
+            to="/"
             className="flex items-center gap-2 font-display text-base font-medium"
             style={{ color: C.fg }}
           >
@@ -47,51 +53,39 @@ export const Nav = () => {
               N
             </div>
             Novi
-          </a>
+          </Link>
 
-          {/* Center links */}
+          {/* Desktop nav links */}
           <nav className="hidden md:flex items-center gap-1">
-            {NAV_LINKS.map((l) => (
-              <a
-                key={l}
-                href="#"
-                className="px-3 py-1.5 rounded-lg text-sm transition-all duration-150"
+            {navRoutes.map(({ label, path }) => (
+              <Link
+                key={label}
+                to={path}
+                className="px-3 py-1.5 rounded-lg text-sm transition-all duration-150 hover:text-[#08080b] hover:bg-black/5"
                 style={{ color: C.fgMuted }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = C.fg;
-                  e.currentTarget.style.background = "rgba(0,0,0,0.04)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = C.fgMuted;
-                  e.currentTarget.style.background = "transparent";
-                }}
               >
-                {l}
-              </a>
+                {label}
+              </Link>
             ))}
           </nav>
 
+          {/* Right actions */}
           <div className="flex items-center gap-2">
-            <Button
-              as="a"
-              href="#"
-              variant="ghost"
-              size="sm"
-              className="hidden md:inline-flex"
+            <Link
+              to="/signin"
+              className="hidden md:inline-block px-3 py-1.5 rounded-lg text-sm transition-all duration-150 hover:text-[#08080b] hover:bg-black/5"
+              style={{ color: C.fgMuted }}
             >
               Sign in
-            </Button>
+            </Link>
 
-            {/*  primary button */}
-            <Button
-              as="a"
-              href="#"
-              variant="primary"
-              size="sm"
-              className="text-white"
+            <Link
+              to="/startfree"
+              className="text-sm font-medium px-4 py-1.5 rounded-xl transition-all duration-150 hover:opacity-85"
+              style={{ background: C.accent, color: "#fff" }}
             >
               Start free
-            </Button>
+            </Link>
 
             {/* Mobile toggle */}
             <Button
@@ -114,25 +108,19 @@ export const Nav = () => {
               backdropFilter: "blur(16px)",
             }}
           >
-            {[...NAV_LINKS, "Sign in"].map((l) => (
-              <a
-                key={l}
-                href="#"
-                className="py-2 px-2 text-sm rounded-lg transition-colors"
-                style={{ color: C.fgMuted }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = C.fg;
-                  e.currentTarget.style.background = "rgba(0,0,0,0.04)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = C.fgMuted;
-                  e.currentTarget.style.background = "transparent";
-                }}
-                onClick={closeMobile}
-              >
-                {l}
-              </a>
-            ))}
+            {[...navRoutes, { label: "Sign in", path: "/signin" }].map(
+              ({ label, path }) => (
+                <Link
+                  key={label}
+                  to={path}
+                  className="py-2 px-2 text-sm rounded-lg transition-colors hover:text-[#08080b] hover:bg-black/5"
+                  style={{ color: C.fgMuted }}
+                  onClick={closeMobile}
+                >
+                  {label}
+                </Link>
+              ),
+            )}
           </div>
         )}
       </div>

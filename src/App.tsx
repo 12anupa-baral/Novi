@@ -1,29 +1,26 @@
-import { useState, useCallback } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { C } from "./theme/color";
-import { Nav } from "./components/layout/nav/Nav";
-import Footer from "./components/layout/footer/Footer";
-import Hero from "./components/sections/hero/Hero";
-import Features from "./components/sections/features/Features";
-import CallToAction from "./components/sections/calltoaction/CallToAction";
-import Stats from "./components/sections/stats/Stats";
-import Testimonials from "./components/sections/testimonials/Testimonials";
-import { StepsModal } from "./components/common/Modal";
+import Layout from "./components/layout/Layout";
+import Home from "./pages/Home";
+import About from "./pages/About";
+import Pricing from "./pages/Pricing";
+import Blog from "./pages/Blog";
+import Product from "./pages/Product";
 
 export default function App() {
-  const [modalOpen, setModalOpen] = useState(false);
-  const openModal = useCallback(() => setModalOpen(true), []);
-  const closeModal = useCallback(() => setModalOpen(false), []);
-
   return (
     <div style={{ background: C.bg, color: C.fg, minHeight: "100%" }}>
-      {modalOpen && <StepsModal isOpen={modalOpen} onClose={closeModal} />}
-      <Nav />
-      <Hero openModal={openModal} />
-      <Features />
-      <Stats />
-      <Testimonials />
-      <CallToAction openModal={openModal} />
-      <Footer />
+      <BrowserRouter>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/product" element={<Product />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/blog" element={<Blog />} />
+          </Routes>
+        </Layout>
+      </BrowserRouter>
     </div>
   );
 }
