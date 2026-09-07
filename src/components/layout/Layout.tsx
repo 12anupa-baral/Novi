@@ -1,20 +1,21 @@
 import type { ReactNode } from "react";
 import { Nav } from "./nav/Nav";
 import Footer from "./footer/Footer";
-import { C } from "../../theme/color";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
- const Layout = ({ children }: LayoutProps) => {
+const Layout = ({ children }: LayoutProps) => {
   return (
-    <div style={{ background: C.bg, color: C.fg, minHeight: "100%" }} className="px-4 sm:px-12">
+    <div className="min-h-full bg-[var(--bg)] px-4 text-[var(--fg)] sm:px-12">
       <Nav />
+
       <main>{children}</main>
+
       <Footer />
     </div>
   );
 };
 
-export default Layout
+export default Layout;

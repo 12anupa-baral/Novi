@@ -1,44 +1,65 @@
-import { useFadeIn } from "../../../hooks/useFadeIn";
+import { Clock, Import, LayoutGrid, MessageSquare } from "lucide-react";
 import FeatureCard from "../../common/FeatureCard";
+import FadeIn from "../../common/FadeIn";
 import BoardsVisual from "./BoardsVisual";
 import ThreadsVisual from "./ThreadsVisual";
 import TimelineVisual from "./TimelineVisual";
 import ImportVisual from "./ImportVisual";
-import { C } from "../../../theme/color";
-import { LayoutGrid, MessageSquare, Clock, Import } from "lucide-react";
 
-const Features: React.FC = () => {
-  const featRef = useFadeIn(80);
-
+const Features = () => {
   return (
-    <div id="features" className="py-8">
-      <div ref={featRef} className="fade-in-up">
-        <div className="max-w-lg mb-12">
+    <section id="features" className="py-8">
+      <FadeIn delay={0.08}>
+        {/* Section heading */}
+        <div className="mb-12 max-w-lg">
           <h2
-            className="font-display text-3xl md:text-4xl font-light leading-snug mb-4"
-            style={{ color: C.fg }}
+            className="
+              mb-4
+              font-display
+              text-3xl font-light
+              leading-snug
+              text-[var(--fg)]
+              md:text-4xl
+            "
           >
             Everything in one place.{" "}
-            <span className="italic" style={{ color: C.fgMuted }}>
+            <span className="italic text-[var(--fg-muted)]">
               Finally.
             </span>
           </h2>
-          <p className="text-base leading-relaxed" style={{ color: C.fgMuted }}>
-            Designed around how small teams actually work — short sprints, lots
-            of context‑switching, not a minute to spare.
+
+          <p
+            className="
+              text-base
+              leading-relaxed
+              text-[var(--fg-muted)]
+            "
+          >
+            Designed around how small teams actually work — short sprints,
+            lots of context-switching, not a minute to spare.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 sm:auto-rows-[1fr]">
+        {/* Feature grid */}
+        <div
+          className="
+            grid
+            grid-cols-1
+            gap-4
+            sm:grid-cols-2
+            sm:auto-rows-[1fr]
+            lg:grid-cols-3
+            lg:gap-6
+          "
+        >
           {/* Boards */}
-          <div className="sm:col-span-2 h-full">
+          <div className="h-full sm:col-span-2">
             <FeatureCard
               className="h-full"
-              accentColor={C.accent}
+              accentColor="var(--accent)"
               icon={
                 <LayoutGrid
-                  className="w-4 h-4"
-                  stroke={C.accent}
+                  className="h-4 w-4 text-[var(--accent)]"
                   strokeWidth={1.5}
                 />
               }
@@ -53,11 +74,10 @@ const Features: React.FC = () => {
           <div className="h-full">
             <FeatureCard
               className="h-full"
-              accentColor={C.violet}
+              accentColor="var(--violet)"
               icon={
                 <MessageSquare
-                  className="w-4 h-4"
-                  stroke={C.violet}
+                  className="h-4 w-4 text-[var(--violet)]"
                   strokeWidth={1.5}
                 />
               }
@@ -72,9 +92,12 @@ const Features: React.FC = () => {
           <div className="h-full">
             <FeatureCard
               className="h-full"
-              accentColor={C.amber}
+              accentColor="var(--amber)"
               icon={
-                <Clock className="w-4 h-4" stroke={C.amber} strokeWidth={1.5} />
+                <Clock
+                  className="h-4 w-4 text-[var(--amber)]"
+                  strokeWidth={1.5}
+                />
               }
               title="One timeline for the whole team"
               description="Every deadline and milestone in one shared view."
@@ -83,12 +106,16 @@ const Features: React.FC = () => {
             </FeatureCard>
           </div>
 
-          <div className="sm:col-span-2 h-full">
+          {/* Import */}
+          <div className="h-full sm:col-span-2">
             <FeatureCard
               className="h-full"
-              accentColor={C.cyan}
+              accentColor="var(--cyan)"
               icon={
-                <Import className="w-4 h-4" stroke={C.cyan} strokeWidth={1.5} />
+                <Import
+                  className="h-4 w-4 text-[var(--cyan)]"
+                  strokeWidth={1.5}
+                />
               }
               title="Works the way you already do"
               description="Import from Trello, Asana, or a spreadsheet in minutes. Zero migration pain."
@@ -97,8 +124,8 @@ const Features: React.FC = () => {
             </FeatureCard>
           </div>
         </div>
-      </div>
-    </div>
+      </FadeIn>
+    </section>
   );
 };
 

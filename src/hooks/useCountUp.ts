@@ -1,38 +1,83 @@
 import { useEffect, useRef, useState } from "react";
 
-export function useCountUp(target: number = 0, suffix = "") {
-  const [value, setValue] = useState<number>(0);
+interface UseCountUpOptions {
+  duration?: number;
+  threshold?: number;
+}
+
+const numberFormatter = new Intl.NumberFormat();
+
+export function useCountUp(
+  target = 0,
+  suffix = "",
+  { duration = 1400, threshold = 0.5 }: UseCountUpOptions = {},
+) {
+  const [value, setValue] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    const element = ref.current;
 
-    const obs = new IntersectionObserver(
-      ([e]) => {
-        if (!e.isIntersecting) return;
-        obs.disconnect();
+    if (!element) return;
 
-        let start = 0;
-        const duration = 1400;
-        const step = (ts: number) => {
-          if (!start) start = ts;
-          const p = Math.min((ts - start) / duration, 1);
-          const eased = 1 - Math.pow(1 - p, 3);
-          setValue(Math.floor(eased * target));
-          if (p < 1) requestAnimationFrame(step);
-          else setValue(target);
-        };
-        requestAnimationFrame(step);
+    let animationFrameId = 0;
+    let started = false;
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    const startAnimation = () => {
+      if (started) return;
+      started = true;
+
+      if (prefersReducedMotion) {
+        setValue(target);
+        return;
+      }
+
+      const startTime = performance.now();
+
+      const animate = (currentTime: number) => {
+        const progress = Math.min((currentTime - startTime) / duration, 1);
+
+        // Ease-out cubic
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const nextValue = Math.floor(eased * target);
+
+        setValue(nextValue);
+
+        if (progress < 1) {
+          animationFrameId = requestAnimationFrame(animate);
+        } else {
+          setValue(target);
+        }
+      };
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+
+        observer.disconnect();
+        startAnimation();
       },
-      { threshold: 0.5 },
+      { threshold },
     );
 
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [target]);
+    observer.observe(element);
 
-  // Guard against undefined or NaN
-  const displayValue = (value ?? 0).toLocaleString();
-  return { ref, display: displayValue + suffix };
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [target, duration, threshold]);
+
+  return {
+    ref,
+    display: `${numberFormatter.format(value)}${suffix}`,
+  };
 }
+

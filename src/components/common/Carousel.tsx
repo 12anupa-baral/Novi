@@ -1,13 +1,13 @@
-import React, {
-  useState,
+import {
+  useCallback,
   useEffect,
   useRef,
-  useCallback,
+  useState,
   useSyncExternalStore,
+  type CSSProperties,
+  type ReactNode,
 } from "react";
-import type { ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { C } from "../../theme/color";
 
 function useMediaQuery(query: string) {
   const subscribe = useCallback(
@@ -16,18 +16,25 @@ function useMediaQuery(query: string) {
 
       media.addEventListener("change", callback);
 
-      return () => media.removeEventListener("change", callback);
+      return () => {
+        media.removeEventListener("change", callback);
+      };
     },
     [query],
   );
 
-  const getSnapshot = useCallback(() => {
-    return window.matchMedia(query).matches;
-  }, [query]);
+  const getSnapshot = useCallback(
+    () => window.matchMedia(query).matches,
+    [query],
+  );
 
   const getServerSnapshot = useCallback(() => false, []);
 
-  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  return useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    getServerSnapshot,
+  );
 }
 
 export interface CarouselProps {
@@ -42,7 +49,7 @@ export interface CarouselProps {
   peek?: number;
 }
 
-export const Carousel: React.FC<CarouselProps> = ({
+export const Carousel = ({
   items,
   itemsPerView = 3,
   gap = 16,
@@ -52,266 +59,568 @@ export const Carousel: React.FC<CarouselProps> = ({
   className = "",
   dragThreshold = 50,
   peek = 20,
-}) => {
+}: CarouselProps) => {
   const isMobile = useMediaQuery("(max-width: 640px)");
-  const isTablet = useMediaQuery("(min-width: 641px) and (max-width: 1024px)");
-
-  const effectivePeek = isMobile ? 0 : isTablet ? 10 : peek;
-
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [itemWidth, setItemWidth] = useState(0);
-  const trackRef = useRef<HTMLDivElement>(null);
-
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStartX, setDragStartX] = useState(0);
-  const [dragOffsetX, setDragOffsetX] = useState(0);
-  const [dragCurrentX, setDragCurrentX] = useState(0);
+  const isTablet = useMediaQuery(
+    "(min-width: 641px) and (max-width: 1024px)",
+  );
 
   const totalItems = items.length;
-  const cloneCount = itemsPerView;
 
-  const clonedItems = [
-    ...items.slice(-cloneCount),
-    ...items,
-    ...items.slice(0, cloneCount),
-  ];
+  const safeItemsPerView = Math.max(
+    1,
+    Math.min(itemsPerView, totalItems || 1),
+  );
 
-  const [virtualIndex, setVirtualIndex] = useState(cloneCount);
+  const cloneCount =
+    totalItems > 0
+      ? Math.min(safeItemsPerView, totalItems)
+      : 0;
 
-  const realIndex =
-    totalItems > 0 ? (virtualIndex - cloneCount + totalItems) % totalItems : 0;
+  const effectivePeek = isMobile
+    ? 0
+    : isTablet
+      ? 10
+      : peek;
+
+  /*
+   * --------------------------------------------------
+   * Refs
+   * --------------------------------------------------
+   */
+
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  const itemWidthRef = useRef(0);
+
+  const virtualIndexRef = useRef(cloneCount);
+
+  const dragStartXRef = useRef(0);
+  const dragOffsetXRef = useRef(0);
+  const pointerIdRef = useRef<number | null>(null);
+
+  const isDraggingRef = useRef(false);
+  const isTransitioningRef = useRef(false);
+
+  /*
+   * Used to prevent autoplay from firing while the
+   * user is interacting with the carousel.
+   */
+  const interactionRef = useRef(false);
+
+  /*
+   * --------------------------------------------------
+   * React state
+   * --------------------------------------------------
+   */
+
+  const [virtualIndex, setVirtualIndex] =
+    useState(cloneCount);
+
+  const [isDragging, setIsDragging] = useState(false);
+
+  /*
+   * --------------------------------------------------
+   * Cloned slides
+   * --------------------------------------------------
+   */
+
+  const clonedItems =
+    totalItems > 0
+      ? [
+          ...items.slice(-cloneCount),
+          ...items,
+          ...items.slice(0, cloneCount),
+        ]
+      : [];
+
+  /*
+   * --------------------------------------------------
+   * Helpers
+   * --------------------------------------------------
+   */
+
+  const setTrackTransition = useCallback(
+    (enabled: boolean) => {
+      const track = trackRef.current;
+
+      if (!track) return;
+
+      track.style.transition = enabled
+        ? "transform 300ms ease-in-out"
+        : "none";
+    },
+    [],
+  );
+
+  const updateTrackPosition = useCallback(
+    (
+      index: number,
+      dragOffset = 0,
+      animate = false,
+    ) => {
+      const track = trackRef.current;
+
+      if (!track || !itemWidthRef.current) return;
+
+      const offset =
+        index * itemWidthRef.current -
+        dragOffset -
+        effectivePeek;
+
+      if (animate) {
+        setTrackTransition(true);
+      }
+
+      track.style.transform = `translate3d(${-offset}px, 0, 0)`;
+    },
+    [effectivePeek, setTrackTransition],
+  );
+
+  /*
+   * --------------------------------------------------
+   * Measure slide width
+   * --------------------------------------------------
+   */
 
   useEffect(() => {
-    const updateWidth = () => {
-      if (trackRef.current) {
-        const firstChild = trackRef.current.children[0] as
-          HTMLElement | undefined;
+    const track = trackRef.current;
 
-        if (firstChild) {
-          setItemWidth(firstChild.offsetWidth + gap);
-        }
-      }
+    if (!track) return;
+
+    const updateWidth = () => {
+      const firstChild =
+        track.firstElementChild as HTMLElement | null;
+
+      if (!firstChild) return;
+
+      itemWidthRef.current =
+        firstChild.getBoundingClientRect().width + gap;
+
+      updateTrackPosition(
+        virtualIndexRef.current,
+        isDraggingRef.current
+          ? dragOffsetXRef.current
+          : 0,
+      );
     };
 
     updateWidth();
 
-    window.addEventListener("resize", updateWidth);
+    const observer = new ResizeObserver(updateWidth);
 
-    return () => window.removeEventListener("resize", updateWidth);
-  }, [itemsPerView, gap]);
+    observer.observe(track);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [
+    gap,
+    safeItemsPerView,
+    updateTrackPosition,
+  ]);
+
+  /*
+   * --------------------------------------------------
+   * Sync virtual index
+   * --------------------------------------------------
+   */
+
+  useEffect(() => {
+    virtualIndexRef.current = virtualIndex;
+  }, [virtualIndex]);
+
+  /*
+   * --------------------------------------------------
+   * Navigation
+   * --------------------------------------------------
+   */
 
   const goTo = useCallback(
     (index: number, animate = true) => {
-      if (isTransitioning && animate) return;
+      if (
+        totalItems <= safeItemsPerView ||
+        isTransitioningRef.current
+      ) {
+        return;
+      }
+
+      virtualIndexRef.current = index;
 
       setVirtualIndex(index);
-      setIsTransitioning(animate);
+
+      isTransitioningRef.current = animate;
+
+      updateTrackPosition(index, 0, animate);
 
       if (!animate) {
-        setTimeout(() => setIsTransitioning(false), 0);
-      } else {
-        setTimeout(() => setIsTransitioning(false), 300);
+        requestAnimationFrame(() => {
+          isTransitioningRef.current = false;
+        });
       }
     },
-    [isTransitioning],
+    [
+      safeItemsPerView,
+      totalItems,
+      updateTrackPosition,
+    ],
   );
 
   const next = useCallback(() => {
-    const nextIndex = virtualIndex + 1;
-    goTo(nextIndex);
-  }, [virtualIndex, goTo]);
+    if (totalItems <= safeItemsPerView) return;
+
+    goTo(virtualIndexRef.current + 1);
+  }, [goTo, safeItemsPerView, totalItems]);
 
   const prev = useCallback(() => {
-    const prevIndex = virtualIndex - 1;
-    goTo(prevIndex);
-  }, [virtualIndex, goTo]);
+    if (totalItems <= safeItemsPerView) return;
 
-  const handleTransitionEnd = () => {
-    setIsTransitioning(false);
+    goTo(virtualIndexRef.current - 1);
+  }, [goTo, safeItemsPerView, totalItems]);
+
+  /*
+   * --------------------------------------------------
+   * Infinite loop
+   * --------------------------------------------------
+   */
+
+  const handleTransitionEnd = useCallback(() => {
+    isTransitioningRef.current = false;
 
     const upperBound = cloneCount + totalItems;
 
-    if (virtualIndex >= upperBound) {
-      const newIndex = virtualIndex - totalItems;
+    let newIndex: number | null = null;
 
-      setVirtualIndex(newIndex);
-
-      if (trackRef.current) {
-        trackRef.current.style.transition = "none";
-        void trackRef.current.offsetHeight;
-        trackRef.current.style.transition = "";
-      }
-    } else if (virtualIndex < cloneCount) {
-      const newIndex = virtualIndex + totalItems;
-
-      setVirtualIndex(newIndex);
-
-      if (trackRef.current) {
-        trackRef.current.style.transition = "none";
-        void trackRef.current.offsetHeight;
-        trackRef.current.style.transition = "";
-      }
-    }
-  };
-
-  // Drag handlers
-  const handleDragStart = (clientX: number) => {
-    if (isTransitioning) return;
-
-    setIsDragging(true);
-    setDragStartX(clientX);
-    setDragCurrentX(clientX);
-    setDragOffsetX(0);
-
-    if (trackRef.current) {
-      trackRef.current.style.transition = "none";
-    }
-  };
-
-  const handleDragMove = (clientX: number) => {
-    if (!isDragging) return;
-
-    setDragCurrentX(clientX);
-    setDragOffsetX(clientX - dragStartX);
-  };
-
-  const handleDragEnd = () => {
-    if (!isDragging) return;
-
-    setIsDragging(false);
-
-    if (trackRef.current) {
-      trackRef.current.style.transition = "";
+    if (virtualIndexRef.current >= upperBound) {
+      newIndex =
+        virtualIndexRef.current - totalItems;
+    } else if (virtualIndexRef.current < cloneCount) {
+      newIndex =
+        virtualIndexRef.current + totalItems;
     }
 
-    const diff = dragCurrentX - dragStartX;
+    if (newIndex === null) return;
 
-    if (Math.abs(diff) > dragThreshold) {
-      if (diff < 0) {
-        next();
-      } else {
-        prev();
-      }
-    }
+    virtualIndexRef.current = newIndex;
 
-    setDragOffsetX(0);
-  };
+    setTrackTransition(false);
 
-  const onMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
+    setVirtualIndex(newIndex);
 
-    handleDragStart(e.clientX);
-
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-  };
-
-  const onMouseMove = (e: MouseEvent) => {
-    handleDragMove(e.clientX);
-  };
-
-  const onMouseUp = () => {
-    handleDragEnd();
-
-    window.removeEventListener("mousemove", onMouseMove);
-    window.removeEventListener("mouseup", onMouseUp);
-  };
-
-  const onTouchStart = (e: React.TouchEvent) => {
-    const touch = e.touches[0];
-
-    handleDragStart(touch.clientX);
-
-    window.addEventListener("touchmove", onTouchMove, {
-      passive: false,
+    /*
+     * Wait for the browser to apply transition:none
+     * before moving to the cloned position.
+     */
+    requestAnimationFrame(() => {
+      updateTrackPosition(newIndex);
     });
+  }, [
+    cloneCount,
+    totalItems,
+    setTrackTransition,
+    updateTrackPosition,
+  ]);
 
-    window.addEventListener("touchend", onTouchEnd);
-    window.addEventListener("touchcancel", onTouchEnd);
-  };
+  /*
+   * --------------------------------------------------
+   * Pointer dragging
+   * --------------------------------------------------
+   */
 
-  const onTouchMove = (e: TouchEvent) => {
-    e.preventDefault();
-
-    const touch = e.touches[0];
-
-    handleDragMove(touch.clientX);
-  };
-
-  const onTouchEnd = () => {
-    handleDragEnd();
-
-    window.removeEventListener("touchmove", onTouchMove);
-    window.removeEventListener("touchend", onTouchEnd);
-    window.removeEventListener("touchcancel", onTouchEnd);
-  };
-
-  useEffect(() => {
-    if (!autoPlay || totalItems <= itemsPerView || isDragging) {
+  const handlePointerDown = (
+    event: React.PointerEvent<HTMLDivElement>,
+  ) => {
+    if (
+      totalItems <= safeItemsPerView ||
+      isTransitioningRef.current
+    ) {
       return;
     }
 
-    const timer = setInterval(next, autoPlay);
+    pointerIdRef.current = event.pointerId;
 
-    return () => clearInterval(timer);
-  }, [autoPlay, isDragging, itemsPerView, totalItems, next]);
+    dragStartXRef.current = event.clientX;
 
-  const handleContainerKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "ArrowLeft") {
-      e.preventDefault();
+    dragOffsetXRef.current = 0;
+
+    isDraggingRef.current = true;
+    interactionRef.current = true;
+
+    setIsDragging(true);
+
+    setTrackTransition(false);
+
+    event.currentTarget.setPointerCapture(
+      event.pointerId,
+    );
+  };
+
+  const handlePointerMove = (
+    event: React.PointerEvent<HTMLDivElement>,
+  ) => {
+    if (
+      !isDraggingRef.current ||
+      pointerIdRef.current !== event.pointerId
+    ) {
+      return;
+    }
+
+    const diff =
+      event.clientX - dragStartXRef.current;
+
+    dragOffsetXRef.current = diff;
+
+    /*
+     * Direct DOM update.
+     *
+     * No React render occurs here.
+     */
+    updateTrackPosition(
+      virtualIndexRef.current,
+      diff,
+    );
+  };
+
+  const finishDrag = useCallback(
+    (event?: React.PointerEvent<HTMLDivElement>) => {
+      if (!isDraggingRef.current) return;
+
+      const diff = dragOffsetXRef.current;
+
+      isDraggingRef.current = false;
+      pointerIdRef.current = null;
+
+      dragOffsetXRef.current = 0;
+
+      interactionRef.current = false;
+
+      setIsDragging(false);
+
+      if (
+        event &&
+        event.currentTarget.hasPointerCapture(
+          event.pointerId,
+        )
+      ) {
+        event.currentTarget.releasePointerCapture(
+          event.pointerId,
+        );
+      }
+
+      if (Math.abs(diff) >= dragThreshold) {
+        if (diff < 0) {
+          next();
+        } else {
+          prev();
+        }
+
+        return;
+      }
+
+      /*
+       * Snap back to current slide.
+       */
+      updateTrackPosition(
+        virtualIndexRef.current,
+        0,
+        true,
+      );
+    },
+    [
+      dragThreshold,
+      next,
+      prev,
+      updateTrackPosition,
+    ],
+  );
+
+  const handlePointerUp = (
+    event: React.PointerEvent<HTMLDivElement>,
+  ) => {
+    finishDrag(event);
+  };
+
+  const handlePointerCancel = () => {
+    if (!isDraggingRef.current) return;
+
+    isDraggingRef.current = false;
+    pointerIdRef.current = null;
+
+    dragOffsetXRef.current = 0;
+
+    interactionRef.current = false;
+
+    setIsDragging(false);
+
+    updateTrackPosition(
+      virtualIndexRef.current,
+      0,
+      true,
+    );
+  };
+
+  /*
+   * --------------------------------------------------
+   * Keyboard navigation
+   * --------------------------------------------------
+   */
+
+  const handleKeyDown = (
+    event: React.KeyboardEvent<HTMLDivElement>,
+  ) => {
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
       prev();
-    } else if (e.key === "ArrowRight") {
-      e.preventDefault();
+    }
+
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
       next();
     }
   };
 
-  const baseOffset = virtualIndex * (itemWidth || 0);
-  const dragOffset = isDragging ? dragOffsetX : 0;
-  const offset = baseOffset - dragOffset - effectivePeek;
+  /*
+   * --------------------------------------------------
+   * Autoplay
+   * --------------------------------------------------
+   */
+
+  useEffect(() => {
+    if (
+      !autoPlay ||
+      totalItems <= safeItemsPerView
+    ) {
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      if (
+        !interactionRef.current &&
+        !isDraggingRef.current &&
+        !isTransitioningRef.current
+      ) {
+        next();
+      }
+    }, autoPlay);
+
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [
+    autoPlay,
+    next,
+    safeItemsPerView,
+    totalItems,
+  ]);
+
+  /*
+   * --------------------------------------------------
+   * Reset when item count changes
+   * --------------------------------------------------
+   */
+
+  useEffect(() => {
+    if (totalItems === 0) return;
+
+    const newIndex = cloneCount;
+
+    virtualIndexRef.current = newIndex;
+
+    isTransitioningRef.current = false;
+
+    setVirtualIndex(newIndex);
+
+    setTrackTransition(false);
+
+    requestAnimationFrame(() => {
+      updateTrackPosition(newIndex);
+    });
+  }, [
+    cloneCount,
+    totalItems,
+    setTrackTransition,
+    updateTrackPosition,
+  ]);
+
+  /*
+   * --------------------------------------------------
+   * Empty state
+   * --------------------------------------------------
+   */
+
+  if (totalItems === 0) {
+    return null;
+  }
+
+  /*
+   * --------------------------------------------------
+   * Dynamic layout styles
+   * --------------------------------------------------
+   *
+   * These are intentionally inline because their
+   * values are calculated at runtime.
+   */
+
+  const containerStyle: CSSProperties = {
+    paddingLeft: effectivePeek,
+    paddingRight: effectivePeek,
+  };
+
+  const slideWidth = `calc(
+    (100% - ${(safeItemsPerView - 1) * gap}px)
+    / ${safeItemsPerView}
+  )`;
+
+  const realIndex =
+    (virtualIndex - cloneCount + totalItems) %
+    totalItems;
+
+  const showControls =
+    totalItems > safeItemsPerView;
 
   return (
     <div
-      className={`relative carousel-region ${className}`}
+      className={`relative ${className}`}
       role="region"
       aria-roledescription="carousel"
       aria-label="Testimonials"
       tabIndex={0}
-      onKeyDown={handleContainerKeyDown}
+      onKeyDown={handleKeyDown}
     >
+      {/* Track container */}
       <div
-        className="py-8 overflow-visible"
-        style={{
-          paddingLeft: effectivePeek,
-          paddingRight: effectivePeek,
-        }}
+        className="overflow-visible py-8"
+        style={containerStyle}
       >
         <div
-          className="overflow-visible cursor-grab active:cursor-grabbing select-none"
-          onMouseDown={onMouseDown}
-          onTouchStart={onTouchStart}
+          className={[
+            "select-none",
+            "overflow-visible",
+            "touch-pan-y",
+            isDragging
+              ? "cursor-grabbing"
+              : "cursor-grab",
+          ].join(" ")}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerCancel}
         >
           <div
             ref={trackRef}
-            className="flex overflow-visible"
-            style={{
-              transform: `translateX(-${offset}px)`,
-              gap: `${gap}px`,
-              transition:
-                isDragging || !isTransitioning
-                  ? "none"
-                  : "transform 300ms ease-in-out",
-            }}
+            className="flex overflow-visible will-change-transform"
             onTransitionEnd={handleTransitionEnd}
           >
-            {clonedItems.map((item, idx) => (
+            {clonedItems.map((item, index) => (
               <div
-                key={idx}
-                className="flex-shrink-0 overflow-visible"
+                key={index}
+                className="shrink-0 overflow-visible"
                 style={{
-                  width: `calc((100% - ${
-                    (itemsPerView - 1) * gap
-                  }px) / ${itemsPerView})`,
+                  width: slideWidth,
+                  marginRight:
+                    index === clonedItems.length - 1
+                      ? 0
+                      : gap,
                 }}
               >
                 {item}
@@ -322,64 +631,118 @@ export const Carousel: React.FC<CarouselProps> = ({
       </div>
 
       {/* Arrows */}
-      {showArrows && totalItems > itemsPerView && (
+      {showArrows && showControls && (
         <>
           <button
+            type="button"
             onClick={prev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-colors cursor-pointer"
-            style={{
-              background: C.card,
-              border: `1px solid ${C.border}`,
-              color: C.fgMuted,
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = C.accentBg)
-            }
-            onMouseLeave={(e) => (e.currentTarget.style.background = C.card)}
-            aria-label="Previous"
+            aria-label="Previous slide"
+            className="
+              absolute left-0 top-1/2 z-10
+              flex h-8 w-8
+              -translate-y-1/2
+              items-center justify-center
+              rounded-full
+              border border-[var(--border)]
+              bg-[var(--card)]
+              text-[var(--fg-muted)]
+              shadow-lg
+              transition-all duration-200
+              hover:border-[var(--border-hi)]
+              hover:bg-[var(--accent-bg)]
+              hover:text-[var(--accent)]
+              active:scale-95
+              focus-visible:outline-none
+              focus-visible:ring-2
+              focus-visible:ring-[var(--focus-ring)]
+              focus-visible:ring-offset-2
+              cursor-pointer
+            "
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft
+              aria-hidden="true"
+              className="h-4 w-4"
+            />
           </button>
 
           <button
+            type="button"
             onClick={next}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-colors cursor-pointer"
-            style={{
-              background: C.card,
-              border: `1px solid ${C.border}`,
-              color: C.fgMuted,
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = C.accentBg)
-            }
-            onMouseLeave={(e) => (e.currentTarget.style.background = C.card)}
-            aria-label="Next"
+            aria-label="Next slide"
+            className="
+              absolute right-0 top-1/2 z-10
+              flex h-8 w-8
+              -translate-y-1/2
+              items-center justify-center
+              rounded-full
+              border border-[var(--border)]
+              bg-[var(--card)]
+              text-[var(--fg-muted)]
+              shadow-lg
+              transition-all duration-200
+              hover:border-[var(--border-hi)]
+              hover:bg-[var(--accent-bg)]
+              hover:text-[var(--accent)]
+              active:scale-95
+              focus-visible:outline-none
+              focus-visible:ring-2
+              focus-visible:ring-[var(--focus-ring)]
+              focus-visible:ring-offset-2
+              cursor-pointer
+            "
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight
+              aria-hidden="true"
+              className="h-4 w-4"
+            />
           </button>
         </>
       )}
 
       {/* Dots */}
-      {showDots && totalItems > itemsPerView && (
-        <div className="flex justify-center gap-2 mt-4">
-          {Array.from({ length: totalItems }).map((_, i) => (
-            <button
-              key={i}
-              onClick={() => {
-                const target = cloneCount + i;
-                goTo(target);
-              }}
-              className="transition-all duration-200"
-              style={{
-                width: i === realIndex ? 24 : 8,
-                height: 8,
-                borderRadius: 4,
-                background: i === realIndex ? C.accent : C.fgDim,
-              }}
-              aria-label={`Go to slide ${i + 1}`}
-            />
-          ))}
+      {showDots && showControls && (
+        <div
+          className="mt-4 flex justify-center gap-2"
+          role="tablist"
+          aria-label="Carousel slides"
+        >
+          {Array.from({ length: totalItems }).map(
+            (_, index) => {
+              const isActive =
+                index === realIndex;
+
+              return (
+                <button
+                  key={index}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  aria-label={`Go to slide ${
+                    index + 1
+                  }`}
+                  onClick={() =>
+                    goTo(cloneCount + index)
+                  }
+                  className={[
+                    "h-2 rounded-full",
+                    "transition-all duration-200",
+                    "focus-visible:outline-none",
+                    "focus-visible:ring-2",
+                    "focus-visible:ring-[var(--focus-ring)]",
+                    "focus-visible:ring-offset-2",
+                    "cursor-pointer",
+                    isActive
+                      ? "w-6 bg-[var(--accent)]"
+                      : [
+                          "w-2",
+                          "bg-[var(--fg-dim)]",
+                          "hover:bg-[var(--fg-muted)]",
+                        ].join(" "),
+                  ].join(" ")}
+                />
+              );
+            },
+          )}
         </div>
       )}
     </div>

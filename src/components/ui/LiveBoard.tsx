@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
-import { C } from "../../theme/color";
 import { BOARD_COLUMNS, NOTIFS, SIDEBAR_ITEMS } from "../../data/Mockdata";
 
 interface TaskCardProps {
@@ -19,242 +18,366 @@ const TaskCard = ({
   tc,
   tt,
   assignee,
-  active,
-  done,
-}: TaskCardProps) => (
-  <div
-    className="rounded-xl p-3"
-    style={{
-      background: active ? "#161620" : "#0d0d11",
-      border: `1px solid ${active ? "rgba(200,245,90,0.18)" : "rgba(255,255,255,0.04)"}`,
-      opacity: done ? 0.45 : 1,
-    }}
-  >
-    {active && (
-      <div className="flex items-center gap-1 mb-2">
-        <div
-          className="w-1 h-1 rounded-full animate-pulse"
-          style={{ background: C.accent }}
-        />
-        <span className="text-xs" style={{ color: C.accent, fontSize: 10 }}>
-          in progress
-        </span>
-      </div>
-    )}
+  active = false,
+  done = false,
+}: TaskCardProps) => {
+  return (
     <div
-      className="text-xs leading-snug"
-      style={{
-        color: done ? C.fgDim : "#d4d0c8",
-        textDecoration: done ? "line-through" : "none",
-      }}
+      className={[
+        "rounded-xl p-3",
+        "border",
+        active
+          ? "border-[rgba(200,245,90,0.18)] bg-[#161620]"
+          : "border-[rgba(255,255,255,0.04)] bg-[#0d0d11]",
+        done ? "opacity-45" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
-      {title}
-    </div>
-    <div className="flex items-center justify-between mt-2">
-      <span
-        className="inline-block px-1.5 py-0.5 rounded text-xs"
-        style={{ background: tc, color: tt, fontSize: 10 }}
-      >
-        {tag}
-      </span>
+      {active && (
+        <div className="mb-2 flex items-center gap-1">
+          <div
+            className="
+              h-1 w-1
+              animate-pulse
+              rounded-full
+              bg-[var(--accent)]
+            "
+          />
+
+          <span
+            className="
+              text-[10px]
+              text-[var(--accent)]
+            "
+          >
+            in progress
+          </span>
+        </div>
+      )}
+
       <div
-        className="w-4 h-4 rounded-full flex items-center justify-center text-xs"
-        style={{ background: "#1e1e28", color: C.fgMuted, fontSize: 9 }}
+        className={[
+          "text-xs leading-snug",
+          done ? "text-[var(--fg-dim)] line-through" : "text-[#d4d0c8]",
+        ].join(" ")}
       >
-        {assignee}
+        {title}
+      </div>
+
+      <div className="mt-2 flex items-center justify-between">
+        <span
+          className="
+            inline-block
+            rounded
+            px-1.5 py-0.5
+            text-[10px]
+          "
+          style={{
+            backgroundColor: tc,
+            color: tt,
+          }}
+        >
+          {tag}
+        </span>
+
+        <div
+          className="
+            flex
+            h-4 w-4
+            items-center justify-center
+            rounded-full
+            bg-[#1e1e28]
+            text-[9px]
+            text-[var(--fg-muted)]
+          "
+        >
+          {assignee}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
-//  Add Task Button
-
-const AddTaskButton = () => (
-  <div
-    className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg cursor-pointer group"
-    style={{ border: `1px dashed ${C.fgDim}`, color: C.fgDim }}
-  >
-    <Plus className="w-3 h-3" stroke="currentColor" strokeWidth={1.5} />
-    <span className="text-xs">Add task</span>
-  </div>
-);
-
-//  LiveBoard
+const AddTaskButton = () => {
+  return (
+    <button
+      type="button"
+      className="
+        flex
+        cursor-pointer
+        items-center gap-1.5
+        rounded-lg
+        border
+        border-dashed
+        border-[var(--fg-dim)]
+        px-2 py-1.5
+        text-[var(--fg-dim)]
+        transition-colors
+        hover:border-[var(--fg-muted)]
+        hover:text-[var(--fg-muted)]
+      "
+    >
+      <Plus aria-hidden="true" className="h-3 w-3" strokeWidth={1.5} />
+      <span className="text-xs">Add task</span>
+    </button>
+  );
+};
 
 const LiveBoard = () => {
   const [notifIdx, setNotifIdx] = useState(0);
   const [notifKey, setNotifKey] = useState(0);
 
   useEffect(() => {
-    const id = setInterval(() => {
-      setNotifIdx((i) => (i + 1) % NOTIFS.length);
-      setNotifKey((k) => k + 1);
+    const intervalId = window.setInterval(() => {
+      setNotifIdx((index) => (index + 1) % NOTIFS.length);
+      setNotifKey((key) => key + 1);
     }, 3600);
-    return () => clearInterval(id);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
   }, []);
 
-  const notif = NOTIFS[notifIdx];
+  const notification = NOTIFS[notifIdx];
 
   return (
     <div className="relative">
       {/* Glow */}
       <div
-        className="absolute inset-0 pointer-events-none rounded-2xl blur-3xl opacity-15"
-        style={{
-          background: `radial-gradient(ellipse at 50% 80%, ${C.accent} 0%, transparent 65%)`,
-        }}
+        className="
+          pointer-events-none
+          absolute inset-0
+          rounded-2xl
+          bg-[radial-gradient(ellipse_at_50%_80%,var(--accent)_0%,transparent_65%)]
+          opacity-15
+          blur-3xl
+        "
       />
 
       {/* Notification badge */}
       <div
         key={notifKey}
-        className="animate-notif absolute -top-4 left-1/2 -translate-x-1/2 z-20
-          flex items-center gap-2 px-3 py-1.5 rounded-full text-xs whitespace-nowrap"
-        style={{
-          background: "#111118",
-          border: `1px solid ${C.border}`,
-          boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
-          color: C.fgMuted,
-        }}
+        className="
+          animate-notif
+          absolute
+          -top-4 left-1/2
+          z-20
+          flex
+          -translate-x-1/2
+          items-center
+          gap-2
+          whitespace-nowrap
+          rounded-full
+          border
+          border-[var(--border)]
+          bg-[#111118]
+          px-3 py-1.5
+          text-xs
+          text-[var(--fg-muted)]
+          shadow-[0_4px_20px_rgba(0,0,0,0.4)]
+        "
       >
-        <span style={{ color: notif.color }}>{notif.icon}</span>
-        {notif.text}
-        <span style={{ color: C.fgDim }}>· just now</span>
+        <span style={{ color: notification.color }} aria-hidden="true">
+          {notification.icon}
+        </span>
+
+        {notification.text}
+
+        <span className="text-[var(--fg-dim)]">· just now</span>
       </div>
 
       {/* Window frame */}
       <div
-        className="rounded-2xl overflow-hidden"
-        style={{
-          background: "#0e0e13",
-          border: "1px solid rgba(255,255,255,0.1)",
-        }}
+        className="
+          overflow-hidden
+          rounded-2xl
+          border
+          border-[rgba(255,255,255,0.1)]
+          bg-[#0e0e13]
+        "
       >
         {/* Chrome */}
         <div
-          className="flex items-center justify-between px-4 py-2.5"
-          style={{
-            borderBottom: `1px solid ${C.border}`,
-            background: "#09090c",
-          }}
+          className="
+            flex
+            items-center
+            justify-between
+            border-b
+            border-[var(--border)]
+            bg-[#09090c]
+            px-4 py-2.5
+          "
         >
+          {/* Window controls */}
           <div className="flex items-center gap-1.5">
-            <span
-              className="w-2.5 h-2.5 rounded-full"
-              style={{ background: "#ff5f57" }}
-            />
-            <span
-              className="w-2.5 h-2.5 rounded-full"
-              style={{ background: "#febc2e" }}
-            />
-            <span
-              className="w-2.5 h-2.5 rounded-full"
-              style={{ background: "#28c840" }}
-            />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
           </div>
+
+          {/* Sprint */}
           <div className="flex items-center gap-2">
             <div
-              className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs"
-              style={{
-                background: "#141418",
-                color: C.fgDim,
-                fontFamily: "monospace",
-              }}
+              className="
+                flex
+                items-center gap-1.5
+                rounded-md
+                bg-[#141418]
+                px-3 py-1
+                font-mono
+                text-xs
+                text-[var(--fg-dim)]
+              "
             >
               <div
-                className="w-1.5 h-1.5 rounded-full"
-                style={{ background: C.accent }}
+                className="
+                  h-1.5 w-1.5
+                  rounded-full
+                  bg-[var(--accent)]
+                "
               />
               sprint-9 · design
             </div>
           </div>
+
+          {/* Team avatars */}
           <div className="flex items-center gap-2">
             {[
               ["L", "#3a2a6a"],
               ["M", "#1a3028"],
               ["K", "#2a2a14"],
-            ].map(([l, bg]) => (
+            ].map(([initial, background]) => (
               <div
-                key={l}
-                className="w-5 h-5 rounded-full flex items-center justify-center text-xs"
-                style={{ background: bg, color: C.fg, fontSize: 9 }}
+                key={initial}
+                className="
+                  flex
+                  h-5 w-5
+                  items-center justify-center
+                  rounded-full
+                  text-[9px]
+                  text-[var(--fg)]
+                "
+                style={{ backgroundColor: background }}
               >
-                {l}
+                {initial}
               </div>
             ))}
           </div>
         </div>
 
         {/* Main board */}
-        <div className="flex" style={{ minHeight: 320 }}>
+        <div className="flex min-h-80">
           {/* Sidebar */}
           <div
-            className="w-40 shrink-0 flex flex-col p-3 gap-0.5"
-            style={{ borderRight: `1px solid ${C.border}` }}
+            className="
+              flex
+              w-40
+              shrink-0
+              flex-col
+              gap-0.5
+              border-r
+              border-[var(--border)]
+              p-3
+            "
           >
             {SIDEBAR_ITEMS.map(({ icon, label, active }) => (
               <div
                 key={label}
-                className="flex items-center gap-2 px-2 py-1.5 rounded-md text-xs cursor-pointer"
-                style={{
-                  background: active ? C.accentBg : "transparent",
-                  color: active ? C.accent : C.fgMuted,
-                }}
+                className={[
+                  "flex items-center gap-2",
+                  "cursor-pointer",
+                  "rounded-md",
+                  "px-2 py-1.5",
+                  "text-xs",
+                  active
+                    ? "bg-[var(--accent-bg)] text-[var(--accent)]"
+                    : "text-[var(--fg-muted)]",
+                ].join(" ")}
               >
-                <span style={{ fontSize: 10, opacity: active ? 1 : 0.6 }}>
+                <span
+                  className={[
+                    "text-[10px]",
+                    active ? "opacity-100" : "opacity-60",
+                  ].join(" ")}
+                >
                   {icon}
                 </span>
+
                 {label}
               </div>
             ))}
+
+            {/* Sprint progress */}
             <div
-              className="mt-auto pt-3"
-              style={{ borderTop: `1px solid ${C.border}` }}
+              className="
+                mt-auto
+                border-t
+                border-[var(--border)]
+                pt-3
+              "
             >
-              <div className="px-2 py-1.5 text-xs" style={{ color: C.fgDim }}>
-                <div className="mb-1" style={{ color: C.fgMuted }}>
+              <div className="px-2 py-1.5 text-xs text-[var(--fg-dim)]">
+                <div className="mb-1 text-[var(--fg-muted)]">
                   Sprint progress
                 </div>
+
                 <div
-                  className="h-1 rounded-full overflow-hidden"
-                  style={{ background: "#1e1e28" }}
+                  className="
+                    h-1
+                    overflow-hidden
+                    rounded-full
+                    bg-[#1e1e28]
+                  "
                 >
                   <div
-                    className="h-full rounded-full"
-                    style={{ width: "73%", background: C.accent }}
+                    className="
+                      h-full
+                      w-[73%]
+                      rounded-full
+                      bg-[var(--accent)]
+                    "
                   />
                 </div>
-                <div className="mt-1" style={{ color: C.fgDim }}>
-                  73%
-                </div>
+
+                <div className="mt-1 text-[var(--fg-dim)]">73%</div>
               </div>
             </div>
           </div>
 
           {/* Board columns */}
-          <div className="flex-1 p-4 overflow-hidden">
-            <div className="flex gap-3 h-full">
-              {BOARD_COLUMNS.map((col) => (
-                <div key={col.col} className="flex-1 flex flex-col gap-2">
-                  <div className="flex items-center justify-between mb-0.5">
+          <div className="flex-1 overflow-hidden p-4">
+            <div className="flex h-full gap-3">
+              {BOARD_COLUMNS.map((column) => (
+                <div key={column.col} className="flex flex-1 flex-col gap-2">
+                  {/* Column header */}
+                  <div className="mb-0.5 flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
                       <span
-                        className="w-1.5 h-1.5 rounded-full"
-                        style={{ background: col.dot }}
+                        className="h-1.5 w-1.5 rounded-full"
+                        style={{ backgroundColor: column.dot }}
                       />
-                      <span className="text-xs" style={{ color: C.fgMuted }}>
-                        {col.col}
+
+                      <span className="text-xs text-[var(--fg-muted)]">
+                        {column.col}
                       </span>
                     </div>
+
                     <span
-                      className="text-xs px-1.5 rounded"
-                      style={{ background: "#1e1e28", color: C.fgDim }}
+                      className="
+                        rounded
+                        bg-[#1e1e28]
+                        px-1.5
+                        text-xs
+                        text-[var(--fg-dim)]
+                      "
                     >
-                      {col.count}
+                      {column.count}
                     </span>
                   </div>
 
-                  {col.tasks.map((task) => (
+                  {/* Tasks */}
+                  {column.tasks.map((task) => (
                     <TaskCard key={task.title} {...task} />
                   ))}
 

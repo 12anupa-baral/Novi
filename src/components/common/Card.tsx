@@ -1,42 +1,38 @@
-import type { ReactNode } from "react";
-import { useState } from "react";
-import { C } from "../../theme/color";
+import type { CSSProperties, ReactNode } from "react";
 
 export interface CardProps {
   children: ReactNode;
   accentColor?: string;
   className?: string;
   colSpan?: 1 | 2;
-  shadow?: string;
-  hoverShadow?: string;
 }
 
-export const Card: React.FC<CardProps> = ({
+export const Card = ({
   children,
+  accentColor = "var(--accent)",
   className = "",
   colSpan = 1,
-  shadow = "none",
-  hoverShadow,
-  accentColor,
-}) => {
-  const [isHover, setIsHover] = useState(false);
+}: CardProps) => {
+  const style = {
+    "--card-accent": accentColor,
+  } as CSSProperties;
 
   return (
     <div
-      className={`rounded-2xl p-6 transition-all duration-300 ${className}`}
-      style={{
-        gridColumn: colSpan === 2 ? "span 2" : undefined,
-        background: C.card,
-        border: `1px solid ${isHover && accentColor ? `${accentColor}66` : C.border}`,
-        minHeight: 200,
-        boxShadow: isHover && hoverShadow ? hoverShadow : shadow,
-      }}
-      onMouseEnter={() => {
-        setIsHover(true);
-      }}
-      onMouseLeave={() => {
-        setIsHover(false);
-      }}
+      style={style}
+      className={[
+        "min-h-[200px]",
+        "rounded-2xl",
+        "border border-[var(--border)]",
+        "bg-[var(--card)]",
+        "p-6",
+        "transition-all duration-300",
+        "hover:border-[color-mix(in_srgb,var(--card-accent)_40%,var(--border))]",
+        colSpan === 2 ? "col-span-2" : "",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
       {children}
     </div>

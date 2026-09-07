@@ -1,28 +1,56 @@
-import { C } from "../../../theme/color";
+import type { CSSProperties } from "react";
+
+const tools = [
+  { name: "Trello", color: "#0052CC", label: "T" },
+  { name: "Asana", color: "#F06A6A", label: "A" },
+  { name: "Sheets", color: "#0F9D58", label: "S" },
+];
 
 export const ImportVisual = () => {
-  const tools = [
-    { name: "Trello", bg: "#0052CC", label: "T" },
-    { name: "Asana", bg: "#F06A6A", label: "A" },
-    { name: "Sheets", bg: "#0F9D58", label: "S" },
-  ];
-
   return (
-    <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mt-4 pointer-events-none select-none">
-      {tools.map((tool, idx) => (
+    <div
+      className="
+        mt-4
+        flex flex-wrap
+        items-center justify-center
+        gap-2
+        pointer-events-none
+        select-none
+        sm:gap-3
+      "
+      aria-hidden="true"
+    >
+      {tools.map((tool, index) => (
         <div key={tool.name} className="flex items-center gap-1 sm:gap-2">
           <div
-            className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-[10px] sm:text-xs font-bold text-white"
-            style={{ background: tool.bg }}
+            className="
+              flex
+              h-6 w-6
+              items-center justify-center
+              rounded-lg
+              text-[10px] font-bold text-white
+              sm:h-8 sm:w-8 sm:text-xs
+              bg-[var(--tool-color)]
+            "
+            style={
+              {
+                "--tool-color": tool.color,
+              } as CSSProperties
+            }
           >
             {tool.label}
           </div>
-          {idx < tools.length - 1 && (
-            <svg viewBox="0 0 20 8" className="w-3 sm:w-5 h-1.5 sm:h-2">
+
+          {index < tools.length - 1 && (
+            <svg
+              viewBox="0 0 20 8"
+              className="h-1.5 w-3 sm:h-2 sm:w-5"
+              aria-hidden="true"
+            >
               <path
                 d="M0 4h14M10 1l4 3-4 3"
-                stroke={C.fgDim}
-                strokeWidth={1.5}
+                stroke="var(--fg-dim)"
+                strokeWidth="1.5"
                 strokeLinecap="round"
                 fill="none"
               />
@@ -30,14 +58,21 @@ export const ImportVisual = () => {
           )}
         </div>
       ))}
-      {/* Final destination – Novi logo */}
+
+      {/* Final destination — Novi logo */}
       <div
-        className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-[10px] sm:text-xs font-bold"
-        style={{
-          background: C.accentBg,
-          border: `1px solid ${C.accentBdr}`,
-          color: C.accent,
-        }}
+        className="
+          flex
+          h-6 w-6
+          items-center justify-center
+          rounded-lg
+          border
+          border-[var(--accent-border)]
+          bg-[var(--accent-bg)]
+          text-[10px] font-bold
+          text-[var(--accent)]
+          sm:h-8 sm:w-8 sm:text-xs
+        "
       >
         N
       </div>

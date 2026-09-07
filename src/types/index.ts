@@ -18,7 +18,7 @@ export interface Testimonial {
   name: string;
   role: string;
   initials: string;
-  bg: string;
+  bg?: string;
 }
 
 export interface Task {

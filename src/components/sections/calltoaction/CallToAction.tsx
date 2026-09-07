@@ -1,64 +1,65 @@
-import { C } from "../../../theme/color";
-import { useFadeIn } from "../../../hooks/useFadeIn";
+import { ArrowRight } from "lucide-react";
 import Button from "../../common/Button";
+import ButtonLink from "../../common/ButtonLinks";
+import FadeIn from "../../common/FadeIn";
 
 interface CallToActionProps {
   openModal: () => void;
 }
 
 const CallToAction = ({ openModal }: CallToActionProps) => {
-  const ctaRef = useFadeIn(0);
   return (
-    <div className="py-8">
-      <div ref={ctaRef} className="fade-in-up">
-        <div
-          className="relative rounded-3xl overflow-hidden"
-          style={{
-            background:
-              "linear-gradient(135deg, #f0eeff 0%, #e8e2ff 50%, #f0eeff 100%)",
-            border: `1px solid ${C.borderHi}`,
-          }}
-        >
+    <section className="py-8">
+      <FadeIn delay={0.08}>
+        <div className="cta-background relative overflow-hidden rounded-3xl border border-[var(--border-hi)]">
+          {/* Grid texture */}
           <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              backgroundImage: `linear-gradient(rgba(108,92,231,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(108,92,231,0.06) 1px, transparent 1px)`,
-              backgroundSize: "40px 40px",
-            }}
+            aria-hidden="true"
+            className="grid-texture pointer-events-none absolute inset-0"
           />
+
+          {/* Bottom glow */}
           <div
-            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-96 h-48 rounded-full blur-3xl"
-            style={{ background: "rgba(108,92,231,0.15)" }}
+            aria-hidden="true"
+            className="
+              cta-glow
+              pointer-events-none
+              absolute
+              bottom-0
+              left-1/2
+              h-48
+              w-96
+              -translate-x-1/2
+              rounded-full
+              blur-3xl
+            "
           />
-          <div className="relative px-8 md:px-16 py-16 text-center">
-            <h2
-              className="font-display text-4xl md:text-5xl font-light leading-snug mb-4"
-              style={{ color: C.fg }}
-            >
+
+          {/* Content */}
+          <div className="relative px-8 py-16 text-center md:px-16">
+            <h2 className="mb-4 font-display text-4xl font-light leading-snug text-[var(--fg)] md:text-5xl">
               Ready to calm
               <br />
-              <em className="italic" style={{ color: C.accent }}>
-                the chaos?
-              </em>
+              <em className="italic text-[var(--accent)]">the chaos?</em>
             </h2>
-            <p
-              className="text-base mb-8 max-w-md mx-auto"
-              style={{ color: C.fgMuted }}
-            >
+
+            <p className="mx-auto mb-8 max-w-md text-base text-[var(--fg-muted)]">
               Set up in under five minutes. Invite your team and start shipping.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Button variant="primary" size="lg">
-                Start free today
-              </Button>
+
+            <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <ButtonLink to="/startfree" size="lg" rightIcon={ArrowRight}>
+                Start free
+              </ButtonLink>
+
               <Button variant="outline" size="lg" onClick={openModal}>
                 See how it works
               </Button>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </FadeIn>
+    </section>
   );
 };
 

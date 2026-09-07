@@ -1,6 +1,5 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { Card } from "./Card";
-import { C } from "../../theme/color";
 
 interface FeatureCardProps {
   icon: ReactNode;
@@ -12,30 +11,43 @@ interface FeatureCardProps {
   className?: string;
 }
 
-const FeatureCard: React.FC<FeatureCardProps> = ({
+const FeatureCard = ({
   icon,
   title,
   description,
   children,
-  accentColor = C.accent,
+  accentColor = "var(--accent)",
   colSpan = 1,
   className = "",
-}) => (
-  <Card accentColor={accentColor} colSpan={colSpan} className={className}>
-    <div
-      className="w-8 h-8 rounded-lg flex items-center justify-center mb-4"
-      style={{ background: `${accentColor}22` }}
-    >
-      {icon}
-    </div>
-    <h3 className="text-base font-medium mb-1.5" style={{ color: C.fg }}>
-      {title}
-    </h3>
-    <p className="text-sm leading-relaxed" style={{ color: C.fgMuted }}>
-      {description}
-    </p>
-    {children}
-  </Card>
-);
+}: FeatureCardProps) => {
+  const style = {
+    "--feature-accent": accentColor,
+  } as CSSProperties;
+
+  return (
+    <Card colSpan={colSpan} className={className} accentColor={accentColor}>
+      <div
+        className="
+          mb-4
+          flex h-8 w-8
+          items-center justify-center
+          rounded-lg
+          bg-[color-mix(in_srgb,var(--feature-accent)_13%,transparent)]
+        "
+        style={style}
+      >
+        {icon}
+      </div>
+
+      <h3 className="mb-1.5 text-base font-medium text-[var(--fg)]">{title}</h3>
+
+      <p className="text-sm leading-relaxed text-[var(--fg-muted)]">
+        {description}
+      </p>
+
+      {children}
+    </Card>
+  );
+};
 
 export default FeatureCard;

@@ -1,13 +1,15 @@
 import { forwardRef, type ReactNode } from "react";
+import { Link, type LinkProps } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonLinkProps extends Omit<LinkProps, "className"> {
   children?: ReactNode;
   variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
   size?: "sm" | "md" | "lg";
   leftIcon?: LucideIcon;
   rightIcon?: LucideIcon;
   fullWidth?: boolean;
+  className?: string;
 }
 
 const sizeClasses = {
@@ -18,40 +20,40 @@ const sizeClasses = {
 
 const variantClasses = {
   primary: `
+    border border-transparent
     bg-[var(--accent)]
     text-white
-    border border-transparent
     hover:bg-[var(--violet)]
   `,
 
   secondary: `
+    border border-[var(--border)]
     bg-black/[0.02]
     text-[var(--fg)]
-    border border-[var(--border)]
-    hover:bg-black/[0.05]
     hover:border-[var(--border-hi)]
+    hover:bg-black/[0.05]
   `,
 
   outline: `
+    border border-[var(--border)]
     bg-transparent
     text-[var(--fg)]
-    border border-[var(--border)]
-    hover:bg-black/[0.03]
     hover:border-[var(--border-hi)]
+    hover:bg-black/[0.03]
   `,
 
   ghost: `
+    border border-transparent
     bg-transparent
     text-[var(--fg-muted)]
-    border border-transparent
     hover:bg-black/[0.04]
     hover:text-[var(--fg)]
   `,
 
   danger: `
+    border border-transparent
     bg-red-500
     text-white
-    border border-transparent
     hover:bg-red-600
   `,
 } as const;
@@ -67,17 +69,16 @@ const baseClasses = `
   duration-200
   ease-out
   cursor-pointer
+
   focus-visible:outline-none
   focus-visible:ring-2
-  focus-visible:ring-black/20
+  focus-visible:ring-[var(--focus-ring)]
   focus-visible:ring-offset-2
+
   active:scale-[0.98]
-  disabled:pointer-events-none
-  disabled:cursor-not-allowed
-  disabled:opacity-50
 `;
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
   (
     {
       children,
@@ -87,17 +88,13 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       rightIcon: RightIcon,
       fullWidth = false,
       className = "",
-      type = "button",
-      disabled = false,
       ...rest
     },
     ref,
   ) => {
     return (
-      <button
+      <Link
         ref={ref}
-        type={type}
-        disabled={disabled}
         className={[
           baseClasses,
           sizeClasses[size],
@@ -110,19 +107,25 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...rest}
       >
         {LeftIcon && (
-          <LeftIcon aria-hidden="true" className="h-4 w-4 shrink-0" />
+          <LeftIcon
+            aria-hidden="true"
+            className="h-4 w-4 shrink-0"
+          />
         )}
 
         {children && <span>{children}</span>}
 
         {RightIcon && (
-          <RightIcon aria-hidden="true" className="h-4 w-4 shrink-0" />
+          <RightIcon
+            aria-hidden="true"
+            className="h-4 w-4 shrink-0"
+          />
         )}
-      </button>
+      </Link>
     );
   },
 );
 
-Button.displayName = "Button";
+ButtonLink.displayName = "ButtonLink";
 
-export default Button;
+export default ButtonLink;

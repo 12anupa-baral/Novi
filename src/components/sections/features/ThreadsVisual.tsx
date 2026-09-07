@@ -1,56 +1,79 @@
-import { C } from "../../../theme/color";
+const messages = [
+  {
+    name: "Lena",
+    msg: "Attached the new Figma link — take a look before standup",
+    self: false,
+    time: "9:14",
+  },
+  {
+    name: "Marcus",
+    msg: "On it. Left a few comments on the settings flow",
+    self: true,
+    time: "9:22",
+  },
+  {
+    name: "Lena",
+    msg: "Perfect. Kira just approved the direction ✓",
+    self: false,
+    time: "9:31",
+  },
+];
 
 export const ThreadsVisual = () => {
-  const messages = [
-    {
-      name: "Lena",
-      msg: "Attached the new Figma link — take a look before standup",
-      self: false,
-      time: "9:14",
-    },
-    {
-      name: "Marcus",
-      msg: "On it. Left a few comments on the settings flow",
-      self: true,
-      time: "9:22",
-    },
-    {
-      name: "Lena",
-      msg: "Perfect. Kira just approved the direction ✓",
-      self: false,
-      time: "9:31",
-    },
-  ];
-
   return (
-    <div className="flex flex-col gap-1.5 sm:gap-2 mt-4 pointer-events-none select-none">
-      {messages.map((m) => (
+    <div
+      className="
+        mt-4
+        flex flex-col
+        gap-1.5
+        pointer-events-none
+        select-none
+        sm:gap-2
+      "
+      aria-hidden="true"
+    >
+      {messages.map((message) => (
         <div
-          key={m.time}
-          className={`flex gap-1.5 sm:gap-2 ${m.self ? "flex-row-reverse" : ""}`}
+          key={message.time}
+          className={[
+            "flex gap-1.5 sm:gap-2",
+            message.self ? "flex-row-reverse" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
         >
+          {/* Avatar */}
           <div
-            className="w-4 h-4 sm:w-5 sm:h-5 rounded-full flex-shrink-0 flex items-center justify-center text-[8px] sm:text-xs"
-            style={{
-              background: m.self ? "#fff0e8" : "#ede8ff",
-              color: m.self ? "#e0804a" : C.violet,
-              marginTop: 1,
-            }}
+            className={[
+              "mt-px",
+              "flex h-4 w-4 shrink-0",
+              "items-center justify-center",
+              "rounded-full",
+              "text-[8px]",
+              "sm:h-5 sm:w-5 sm:text-xs",
+              message.self
+                ? "bg-[#fff0e8] text-[#e0804a]"
+                : "bg-[#ede8ff] text-[var(--violet)]",
+            ].join(" ")}
           >
-            {m.name[0]}
+            {message.name[0]}
           </div>
+
+          {/* Message */}
           <div
-            className="max-w-[75%] sm:max-w-[80%] rounded-xl px-2 py-1.5 sm:px-3 sm:py-2 text-[10px] sm:text-xs leading-snug"
-            style={{
-              background: m.self ? "#f0eeff" : "#f8f8fb",
-              border: `1px solid ${C.border}`,
-              color: C.fg,
-              borderRadius: m.self
-                ? "12px 12px 4px 12px"
-                : "12px 12px 12px 4px",
-            }}
+            className={[
+              "max-w-[75%] sm:max-w-[80%]",
+              "border border-[var(--border)]",
+              "px-2 py-1.5",
+              "text-[10px] leading-snug",
+              "sm:px-3 sm:py-2 sm:text-xs",
+              message.self
+                ? "rounded-[12px_12px_4px_12px] bg-[var(--cta-bg-start)]"
+                : "rounded-[12px_12px_12px_4px] bg-[#f8f8fb]",
+              "text-[var(--fg)]",
+            ].join(" ")}
           >
-            {m.msg}
+            {message.msg}
           </div>
         </div>
       ))}

@@ -1,53 +1,106 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { Check, X } from "lucide-react";
-import { LinkedInIcon, GithubIcon } from "../../../icons";
-import { C } from "../../../theme/color";
+import { GithubIcon, LinkedInIcon } from "../../../icons";
 import { FOOTER_GROUPS } from "../../../data/Mockdata";
 import Button from "../../common/Button";
 import Input from "../../common/Input";
+
+const linkClasses = `
+  text-sm
+  text-[var(--fg-muted)]
+  transition-colors duration-150
+  hover:text-[var(--fg)]
+  focus-visible:outline-none
+  focus-visible:text-[var(--fg)]
+`;
+
+const socialLinkClasses = `
+  text-[var(--fg-dim)]
+  transition-colors duration-150
+  hover:text-[var(--fg-muted)]
+  focus-visible:outline-none
+  focus-visible:text-[var(--fg-muted)]
+`;
+
+const legalLinkClasses = `
+  text-xs
+  text-[var(--fg-dim)]
+  transition-colors duration-150
+  hover:text-[var(--fg-muted)]
+  focus-visible:outline-none
+  focus-visible:text-[var(--fg-muted)]
+`;
 
 const Footer = () => {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setSubmitted(true);
   };
 
   return (
-    <footer style={{ borderTop: `1px solid ${C.border}` }}>
-      <div className="pt-16 pb-8">
+    <footer className="border-t border-[var(--border)]">
+      <div className="py-16 pb-8">
         {/* Main grid */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-10 mb-14">
+        <div className="mb-14 grid grid-cols-2 gap-10 md:grid-cols-6">
           {/* Brand column */}
           <div className="col-span-2">
             <a
               href="#"
-              className="inline-flex items-center gap-2 font-display text-base font-medium mb-2"
-              style={{ color: C.fg }}
+              className="
+                mb-2
+                inline-flex items-center gap-2
+                font-display text-base font-medium
+                text-[var(--fg)]
+                transition-colors
+                hover:text-[var(--accent)]
+                focus-visible:outline-none
+                focus-visible:ring-2
+                focus-visible:ring-[var(--focus-ring)]
+                focus-visible:ring-offset-2
+              "
             >
-              <div
-                className="w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold"
-                style={{ background: C.accent, color: C.bg }}
+              <span
+                className="
+                  flex h-6 w-6
+                  items-center justify-center
+                  rounded-md
+                  bg-[var(--accent)]
+                  text-xs font-bold
+                  text-[var(--bg)]
+                "
               >
                 N
-              </div>
+              </span>
               Novi
             </a>
-            <p className="text-sm mb-6" style={{ color: C.fgMuted }}>
+
+            <p className="mb-6 text-sm text-[var(--fg-muted)]">
               One calm workspace for small, fast-moving teams.
             </p>
-            <p className="text-xs mb-2.5" style={{ color: C.fgDim }}>
+
+            <p
+              className="
+                mb-2.5
+                text-xs
+                text-[var(--fg-dim)]
+              "
+            >
               Get product updates
             </p>
 
             {submitted ? (
               <div
-                className="flex items-center gap-2 text-sm"
-                style={{ color: C.green }}
+                className="
+                  flex items-center gap-2
+                  text-sm
+                  text-[var(--green)]
+                "
+                role="status"
               >
-                <Check className="w-4 h-4" strokeWidth={2} />
+                <Check aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
                 You're on the list
               </div>
             ) : (
@@ -55,12 +108,14 @@ const Footer = () => {
                 <Input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(event) => setEmail(event.target.value)}
                   required
                   placeholder="you@company.com"
                   variant="light"
-                  className="flex-1 min-w-0"
+                  aria-label="Email address"
+                  className="min-w-0 flex-1"
                 />
+
                 <Button type="submit" variant="primary" size="sm">
                   Subscribe
                 </Button>
@@ -72,23 +127,20 @@ const Footer = () => {
           {Object.entries(FOOTER_GROUPS).map(([group, links]) => (
             <div key={group}>
               <h4
-                className="text-xs font-semibold uppercase tracking-widest mb-4"
-                style={{ color: C.fgDim }}
+                className="
+                    mb-4
+                    text-xs font-semibold
+                    uppercase tracking-widest
+                    text-[var(--fg-dim)]
+                  "
               >
                 {group}
               </h4>
+
               <ul className="flex flex-col gap-2.5">
                 {links.map((link) => (
                   <li key={link}>
-                    <a
-                      href="#"
-                      className="text-sm transition-colors duration-150"
-                      style={{ color: C.fgMuted }}
-                      onMouseEnter={(e) => (e.currentTarget.style.color = C.fg)}
-                      onMouseLeave={(e) =>
-                        (e.currentTarget.style.color = C.fgMuted)
-                      }
-                    >
+                    <a href="#" className={linkClasses}>
                       {link}
                     </a>
                   </li>
@@ -100,61 +152,44 @@ const Footer = () => {
 
         {/* Bottom bar */}
         <div
-          className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6"
-          style={{ borderTop: `1px solid ${C.border}` }}
+          className="
+            flex flex-col
+            items-center justify-between
+            gap-4
+            border-t border-[var(--border)]
+            pt-6
+            sm:flex-row
+          "
         >
-          <p className="text-xs" style={{ color: C.fgDim }}>
+          <p className="text-xs text-[var(--fg-dim)]">
             © 2026 Novi Technologies, Inc.
           </p>
 
           <div className="flex items-center gap-5">
             {/* Social icons */}
-            <a
-              href="#"
-              aria-label="X (Twitter)"
-              className="transition-colors"
-              style={{ color: C.fgDim }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = C.fgMuted)}
-              onMouseLeave={(e) => (e.currentTarget.style.color = C.fgDim)}
-            >
-              <X className="w-4 h-4" />
+            <a href="#" aria-label="X (Twitter)" className={socialLinkClasses}>
+              <X aria-hidden="true" className="h-4 w-4" />
             </a>
 
-            <a
-              href="#"
-              aria-label="GitHub"
-              className="transition-colors"
-              style={{ color: C.fgDim }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = C.fgMuted)}
-              onMouseLeave={(e) => (e.currentTarget.style.color = C.fgDim)}
-            >
-              <GithubIcon className="w-4 h-4" />
+            <a href="#" aria-label="GitHub" className={socialLinkClasses}>
+              <GithubIcon aria-hidden="true" className="h-4 w-4" />
             </a>
 
-            <a
-              href="#"
-              aria-label="LinkedIn"
-              className="transition-colors"
-              style={{ color: C.fgDim }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = C.fgMuted)}
-              onMouseLeave={(e) => (e.currentTarget.style.color = C.fgDim)}
-            >
-              <LinkedInIcon className="w-4 h-4" />
+            <a href="#" aria-label="LinkedIn" className={socialLinkClasses}>
+              <LinkedInIcon aria-hidden="true" className="h-4 w-4" />
             </a>
 
-            <span style={{ color: C.fgDim, opacity: 0.3 }}>·</span>
+            <span
+              className="text-[var(--fg-dim)] opacity-30"
+              aria-hidden="true"
+            >
+              ·
+            </span>
 
             {/* Legal links */}
-            {["Privacy", "Terms"].map((l) => (
-              <a
-                key={l}
-                href="#"
-                className="text-xs transition-colors"
-                style={{ color: C.fgDim }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = C.fgMuted)}
-                onMouseLeave={(e) => (e.currentTarget.style.color = C.fgDim)}
-              >
-                {l}
+            {["Privacy", "Terms"].map((link) => (
+              <a key={link} href="#" className={legalLinkClasses}>
+                {link}
               </a>
             ))}
           </div>

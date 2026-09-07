@@ -1,15 +1,44 @@
-import { C } from "../theme/color";
 import type { Notification, Testimonial, ColumnData } from "../types";
 
 // Navigation
 
-export const NAV_LINKS = ["About", "Product", "Pricing", "Blog"] as const;
+export const NAV_ROUTES = [
+  {
+    label: "Product",
+    path: "/product",
+  },
+  {
+    label: "Pricing",
+    path: "/pricing",
+  },
+  {
+    label: "Blog",
+    path: "/blog",
+  },
+  {
+    label: "About",
+    path: "/about",
+  },
+];
 
 // Live Board notifications
+
 export const NOTIFS: Notification[] = [
-  { text: "Lena marked Redesign settings as Done", icon: "✓", color: C.green },
-  { text: "Marcus started Mobile app beta", icon: "→", color: C.accent },
-  { text: "Sprint 9 is now 73% complete", icon: "▲", color: C.violet },
+  {
+    text: "Lena marked Redesign settings as Done",
+    icon: "✓",
+    color: "var(--green)",
+  },
+  {
+    text: "Marcus started Mobile app beta",
+    icon: "→",
+    color: "var(--accent)",
+  },
+  {
+    text: "Sprint 9 is now 73% complete",
+    icon: "▲",
+    color: "var(--violet)",
+  },
 ];
 
 // Testimonials
@@ -20,7 +49,6 @@ export const QUOTES: Testimonial[] = [
     name: "Priya Mehta",
     role: "CPO, Fieldnote",
     initials: "PM",
-    bg: "#251a3a",
   },
   {
     quote:
@@ -28,14 +56,12 @@ export const QUOTES: Testimonial[] = [
     name: "Tom Carey",
     role: "Eng lead, Daybreak Labs",
     initials: "TC",
-    bg: "#1a2e22",
   },
   {
     quote: "It's the first PM tool our designers actually open unprompted.",
     name: "Soo-Jin Park",
     role: "Design director, Arbor Co",
     initials: "SJ",
-    bg: "#2a1a14",
   },
   {
     quote:
@@ -43,7 +69,6 @@ export const QUOTES: Testimonial[] = [
     name: "Alex Rivera",
     role: "Founder, Patchwork",
     initials: "AR",
-    bg: "#1a1a2e",
   },
   {
     quote:
@@ -51,50 +76,49 @@ export const QUOTES: Testimonial[] = [
     name: "Nina Koch",
     role: "Head of Product, Linea Studio",
     initials: "NK",
-    bg: "#2a2a14",
   },
   {
     quote: "Every sprint since we started using Novi has shipped on time.",
     name: "James Osei",
     role: "CTO, Volta Build",
     initials: "JO",
-    bg: "#1a2a2a",
   },
 ];
 
-//Board columns
+// Board columns
+
 export const BOARD_COLUMNS: ColumnData[] = [
   {
     col: "To Do",
-    dot: C.fgDim,
+    dot: "var(--fg-dim)",
     count: 2,
     tasks: [
       {
         title: "Audit onboarding flow",
         tag: "UX",
         tc: "#251a3a",
-        tt: C.violet,
+        tt: "var(--violet)",
         assignee: "L",
       },
       {
         title: "Write release notes",
         tag: "Docs",
         tc: "#1a2e22",
-        tt: C.green,
+        tt: "var(--green)",
         assignee: "M",
       },
     ],
   },
   {
     col: "In Progress",
-    dot: C.accent,
-    count: 1,
+    dot: "var(--accent)",
+    count: 2,
     tasks: [
       {
         title: "Redesign settings page",
         tag: "Design",
         tc: "#2a2a14",
-        tt: C.accent,
+        tt: "var(--accent)",
         assignee: "K",
         active: true,
       },
@@ -109,14 +133,14 @@ export const BOARD_COLUMNS: ColumnData[] = [
   },
   {
     col: "Done",
-    dot: C.green,
-    count: 3,
+    dot: "var(--green)",
+    count: 1,
     tasks: [
       {
         title: "Ship v2.4.0",
         tag: "Release",
         tc: "#1a2e22",
-        tt: C.green,
+        tt: "var(--green)",
         assignee: "A",
         done: true,
       },
@@ -133,7 +157,8 @@ export const FOOTER_GROUPS: Record<string, string[]> = {
   Legal: ["Privacy", "Terms", "Security", "Cookies"],
 };
 
-//liveboard sidebaritems
+// Live Board sidebar items
+
 export const SIDEBAR_ITEMS = [
   { icon: "⌂", label: "Home", active: false },
   { icon: "▦", label: "Sprint 9", active: true },

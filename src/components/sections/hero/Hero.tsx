@@ -1,83 +1,65 @@
-import { Play } from "lucide-react";
-import { useFadeIn } from "../../../hooks/useFadeIn";
-import { C } from "../../../theme/color";
+import { ArrowRight, Play } from "lucide-react";
 import LiveBoard from "../../ui/LiveBoard";
 import Button from "../../common/Button";
+import ButtonLink from "../../common/ButtonLinks";
 import type { HeroProps } from "./type";
+import FadeIn from "../../common/FadeIn";
 
 const Hero: React.FC<HeroProps> = ({ openModal }) => {
-  const heroRef = useFadeIn(0);
 
   return (
     <section className="relative overflow-hidden">
       {/* Grid texture */}
       <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: `linear-gradient(${C.border} 1px, transparent 1px), linear-gradient(90deg, ${C.border} 1px, transparent 1px)`,
-          backgroundSize: "48px 48px",
-          maskImage:
-            "radial-gradient(ellipse 80% 60% at 50% 0%, black 0%, transparent 80%)",
-        }}
+        aria-hidden="true"
+        className="grid-texture-hero pointer-events-none absolute inset-0"
       />
 
       {/* Radial glow */}
       <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 70% 50% at 50% -5%, rgba(108,92,231,0.05) 0%, transparent 55%)",
-        }}
+        aria-hidden="true"
+        className="radial-glow pointer-events-none absolute inset-0"
       />
 
-      <div className="relative pt-20 pb-8">
-        <div ref={heroRef} className="fade-in-up">
-          <div className="flex justify-center mb-8">
-            <div
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs"
-              style={{
-                background: C.accentBg,
-                border: `1px solid ${C.accentBdr}`,
-                color: C.accent,
-              }}
-            >
+      <div className="relative pb-8 pt-20">
+         <FadeIn delay={0.08}>
+          {/* Announcement */}
+          <div className="mb-8 flex justify-center">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--accent-border)] bg-[var(--accent-bg)] px-3 py-1.5 text-xs text-[var(--accent)]">
               <span
-                className="w-1.5 h-1.5 rounded-full animate-pulse"
-                style={{ background: C.accent }}
+                aria-hidden="true"
+                className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--accent)]"
               />
+
               Try now and manage your project with ease
             </div>
           </div>
 
           {/* Headline */}
-          <h1 className="font-display text-center text-5xl sm:text-6xl md:text-7xl lg:text-[80px] font-light leading-[1.04] tracking-tight mb-6">
+          <h1 className="mb-6 text-center font-display text-5xl font-light leading-[1.04] tracking-tight sm:text-6xl md:text-7xl lg:text-[80px]">
             Run your team
             <br />
-            <em className="italic" style={{ color: C.accent }}>
+            <em className="italic text-[var(--accent)]">
               without
             </em>{" "}
             the tab switching.
           </h1>
 
-          <p
-            className="text-center text-lg md:text-xl max-w-xl mx-auto leading-relaxed mb-10"
-            style={{ color: C.fgMuted }}
-          >
-            Novi brings tasks, docs, and conversations into one calm workspace
-            built for small, fast-moving teams.
+          {/* Description */}
+          <p className="mx-auto mb-10 max-w-xl text-center text-lg leading-relaxed text-[var(--fg-muted)] md:text-xl">
+            Novi brings tasks, docs, and conversations into one calm
+            workspace built for small, fast-moving teams.
           </p>
 
           {/* CTAs */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-5">
-            <Button
-              as="a"
-              href="#"
-              variant="primary"
+          <div className="mb-5 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <ButtonLink
+              to="/startfree"
               size="lg"
-              className="shadow-[0_0_28px_rgba(108,92,231,0.28)] hover:shadow-[0_0_40px_rgba(108,92,231,0.42)] hover:-translate-y-0.5"
+              rightIcon={ArrowRight}
             >
-              Start free — No card needed
-            </Button>
+              Start free
+            </ButtonLink>
 
             <Button
               variant="outline"
@@ -89,14 +71,15 @@ const Hero: React.FC<HeroProps> = ({ openModal }) => {
             </Button>
           </div>
 
-          <p className="text-center text-xs" style={{ color: C.fgDim }}>
+          {/* Trust indicator */}
+          <p className="text-center text-xs text-[var(--fg-dim)]">
             Trusted by 2,400+ teams · SOC 2 Type II certified
           </p>
-        </div>
+        </FadeIn>
 
         {/* Board graphic */}
         <div
-          className="mt-16 max-w-3xl mx-auto animate-float"
+          className="mx-auto mt-16 max-w-3xl animate-float"
           style={{ animationDelay: "0.5s" }}
         >
           <LiveBoard />

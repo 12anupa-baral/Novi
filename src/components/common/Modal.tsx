@@ -1,7 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { X } from "lucide-react";
-import { C } from "../../theme/color";
 import Button from "../common/Button";
 import { STEPS } from "../../data/StepsVisual";
 
@@ -16,7 +14,23 @@ export interface ModalProps {
   className?: string;
 }
 
-export const Modal: React.FC<ModalProps> = ({
+const FOCUSABLE_SELECTOR = [
+  "button:not([disabled])",
+  "a[href]",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  "[tabindex]:not([tabindex='-1'])",
+].join(",");
+
+const sizeClasses = {
+  sm: "max-w-sm",
+  md: "max-w-md",
+  lg: "max-w-lg",
+  xl: "max-w-xl",
+} as const;
+
+export const Modal = ({
   isOpen,
   onClose,
   children,
@@ -25,119 +39,164 @@ export const Modal: React.FC<ModalProps> = ({
   size = "md",
   showCloseButton = true,
   className = "",
-}) => {
+}: ModalProps) => {
   const dialogRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
 
+  /*
+   * Lock body scroll and restore focus when the modal closes.
+   */
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-      triggerRef.current = document.activeElement as HTMLElement;
-      const firstFocusable = dialogRef.current?.querySelector<HTMLElement>(
-        'button, a[href], input, [tabindex]:not([tabindex="-1"])',
-      );
-      firstFocusable?.focus();
-    } else {
-      document.body.style.overflow = "unset";
+    if (!isOpen) {
       triggerRef.current?.focus();
+      return;
     }
+
+    triggerRef.current =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    requestAnimationFrame(() => {
+      const firstFocusable =
+        dialogRef.current?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
+
+      firstFocusable?.focus();
+    });
+
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = previousOverflow;
     };
   }, [isOpen]);
 
-  // Close on Escape, and trap Tab focus inside the dialog
+  /*
+   * Escape key + focus trap.
+   */
   useEffect(() => {
-    const handleKeydown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+    if (!isOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
         onClose();
         return;
       }
-      if (e.key !== "Tab" || !dialogRef.current) return;
+
+      if (event.key !== "Tab" || !dialogRef.current) {
+        return;
+      }
+
       const focusable = Array.from(
-        dialogRef.current.querySelectorAll<HTMLElement>(
-          'button, a[href], input, [tabindex]:not([tabindex="-1"])',
-        ),
-      ).filter((el) => !el.hasAttribute("disabled"));
+        dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
+      );
+
       if (focusable.length === 0) return;
+
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
         last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
         first.focus();
       }
     };
-    if (isOpen) {
-      window.addEventListener("keydown", handleKeydown);
-    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
     return () => {
-      window.removeEventListener("keydown", handleKeydown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
-  const sizeClasses = {
-    sm: "max-w-sm",
-    md: "max-w-md",
-    lg: "max-w-lg",
-    xl: "max-w-xl",
-  };
-
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)" }}
-      onClick={(e) => e.target === e.currentTarget && onClose()}
+      className="
+        fixed inset-0 z-50
+        flex items-center justify-center
+        bg-black/75
+        p-4
+        backdrop-blur-lg
+      "
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) {
+          onClose();
+        }
+      }}
     >
       <div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label={title ?? ariaLabel ?? "Dialog"}
-        className={`w-full ${sizeClasses[size]} rounded-2xl overflow-hidden ${className}`}
-        style={{
-          background: C.card,
-          border: `1px solid ${C.borderHi}`,
-          boxShadow: "0 40px 80px rgba(0,0,0,0.6)",
-        }}
+        className={[
+          "w-full",
+          sizeClasses[size],
+          "overflow-hidden",
+          "rounded-2xl",
+          "border border-[var(--border-hi)]",
+          "bg-[var(--card)]",
+          "shadow-[0_40px_80px_rgba(0,0,0,0.6)]",
+          className,
+        ]
+          .filter(Boolean)
+          .join(" ")}
       >
-        {/* Header */}
         {(title || showCloseButton) && (
           <div
-            className="flex items-center justify-between px-6 py-4"
-            style={{ borderBottom: `1px solid ${C.border}` }}
+            className="
+              flex items-center justify-between
+              border-b border-[var(--border)]
+              px-6 py-4
+            "
           >
-            {title && (
+            {title ? (
               <h3
-                className="font-display text-lg font-medium"
-                style={{ color: C.fg }}
+                className="
+                  font-display
+                  text-lg font-medium
+                  text-[var(--fg)]
+                "
               >
                 {title}
               </h3>
+            ) : (
+              <span />
             )}
+
             {showCloseButton && (
               <button
+                type="button"
                 onClick={onClose}
-                className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
-                style={{ color: C.fgMuted }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = "rgba(0,0,0,0.06)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.background = "transparent")
-                }
+                aria-label="Close dialog"
+                className="
+                  flex h-7 w-7
+                  cursor-pointer
+                  items-center justify-center
+                  rounded-lg
+                  text-[var(--fg-muted)]
+                  transition-colors duration-200
+                  hover:bg-black/[0.06]
+                  hover:text-[var(--fg)]
+                  focus-visible:outline-none
+                  focus-visible:ring-2
+                  focus-visible:ring-[var(--focus-ring)]
+                  focus-visible:ring-offset-2
+                "
               >
-                <X className="w-3.5 h-3.5" strokeWidth={2} />
+                <X aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={2} />
               </button>
             )}
           </div>
         )}
 
-        {/* Content */}
         <div className="p-6">{children}</div>
       </div>
     </div>
@@ -149,76 +208,132 @@ interface StepsModalProps {
   onClose: () => void;
 }
 
-export const StepsModal: React.FC<StepsModalProps> = ({ isOpen, onClose }) => {
+export const StepsModal = ({ isOpen, onClose }: StepsModalProps) => {
   const [step, setStep] = useState(0);
-  const totalSteps = STEPS.length;
 
-  const handleBack = () => setStep((s) => Math.max(0, s - 1));
-  const handleNext = () => setStep((s) => Math.min(totalSteps - 1, s + 1));
+  const totalSteps = STEPS.length;
+  const currentStep = STEPS[step];
+
+  useEffect(() => {
+    if (isOpen) {
+      setStep(0);
+    }
+  }, [isOpen]);
+
+  const handleBack = () => {
+    setStep((current) => Math.max(0, current - 1));
+  };
+
+  const handleNext = () => {
+    setStep((current) => Math.min(totalSteps - 1, current + 1));
+  };
+
+  if (!currentStep) return null;
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      showCloseButton={false}
-      ariaLabel={`How Novi works — step ${step + 1} of ${totalSteps}: ${STEPS[step].title}`}
+      showCloseButton
+      ariaLabel={`How Novi works — step ${step + 1} of ${totalSteps}: ${currentStep.title}`}
     >
       {/* Step indicators */}
-      <div className="flex items-center gap-3 mb-4">
-        {STEPS.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setStep(i)}
-            className="transition-all duration-200"
-            style={{
-              width: i === step ? 24 : 8,
-              height: 8,
-              borderRadius: 4,
-              background: i === step ? C.accent : i < step ? C.green : C.fgDim,
-            }}
-          />
-        ))}
+      <div
+        className="mb-4 flex items-center gap-3"
+        role="tablist"
+        aria-label="Steps"
+      >
+        {STEPS.map((item, index) => {
+          const isActive = index === step;
+          const isCompleted = index < step;
+
+          return (
+            <button
+              key={item.num}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              aria-label={`Go to step ${index + 1}: ${item.title}`}
+              onClick={() => setStep(index)}
+              className={[
+                "h-2 rounded-full",
+                "cursor-pointer",
+                "transition-all duration-200",
+                "focus-visible:outline-none",
+                "focus-visible:ring-2",
+                "focus-visible:ring-[var(--focus-ring)]",
+                "focus-visible:ring-offset-2",
+                isActive
+                  ? "w-6 bg-[var(--accent)]"
+                  : isCompleted
+                    ? "w-2 bg-[var(--green)]"
+                    : "w-2 bg-[var(--fg-dim)]",
+              ].join(" ")}
+            />
+          );
+        })}
       </div>
 
       {/* Visual */}
-      {STEPS[step].visual}
+      {currentStep.visual}
 
-      {/* Text content */}
+      {/* Text */}
       <div className="mt-5">
         <div
-          className="text-xs font-semibold tracking-widest uppercase mb-2"
-          style={{ color: C.fgDim }}
+          className="
+            mb-2
+            text-xs font-semibold
+            uppercase tracking-widest
+            text-[var(--fg-dim)]
+          "
         >
-          Step {STEPS[step].num}
+          Step {currentStep.num}
         </div>
+
         <h3
-          className="font-display text-2xl font-light mb-2"
-          style={{ color: C.fg }}
+          className="
+            mb-2
+            font-display
+            text-2xl font-light
+            text-[var(--fg)]
+          "
         >
-          {STEPS[step].title}
+          {currentStep.title}
         </h3>
-        <p className="text-sm leading-relaxed" style={{ color: C.fgMuted }}>
-          {STEPS[step].body}
+
+        <p
+          className="
+            text-sm leading-relaxed
+            text-[var(--fg-muted)]
+          "
+        >
+          {currentStep.body}
         </p>
       </div>
 
       {/* Navigation */}
-      <div className="flex items-center justify-between mt-6">
+      <div className="mt-6 flex items-center justify-between">
         <Button
+          type="button"
           variant="ghost"
           size="sm"
           disabled={step === 0}
           onClick={handleBack}
-          className={step === 0 ? "opacity-40 cursor-not-allowed" : ""}
         >
           Back
         </Button>
+
         {step < totalSteps - 1 ? (
-          <Button variant="primary" size="sm" onClick={handleNext}>
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            onClick={handleNext}
+          >
             Next step →
           </Button>
         ) : (
-          <Button variant="primary" size="sm" onClick={onClose}>
+          <Button type="button" variant="primary" size="sm" onClick={onClose}>
             Start free
           </Button>
         )}

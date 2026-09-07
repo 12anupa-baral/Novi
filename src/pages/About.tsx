@@ -1,18 +1,31 @@
-import { C } from "../theme/color";
-
 const About = () => {
   return (
     <div className="py-24">
-      <h1 className="font-display text-4xl md:text-5xl font-light mb-6" style={{ color: C.fg }}>
+      <h1
+        className="
+          mb-6
+          font-display
+          text-4xl font-light
+          text-[var(--fg)]
+          md:text-5xl
+        "
+      >
         About Novi
       </h1>
-      <p className="text-lg leading-relaxed" style={{ color: C.fgMuted }}>
-        We're building a calm workspace for small, fast‑moving teams.
+
+      <p
+        className="
+          text-lg
+          leading-relaxed
+          text-[var(--fg-muted)]
+        "
+      >
+        We're building a calm workspace for small, fast-moving teams.
         <br />
         No noise. No endless tab switching. Just clarity.
       </p>
     </div>
   );
-}
+};
 
-export default About
+export default About;
