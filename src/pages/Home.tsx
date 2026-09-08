@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import Hero from "../components/sections/hero/Hero";
 import Features from "../components/sections/features/Features";
 import CallToAction from "../components/sections/calltoaction/CallToAction";
@@ -8,15 +8,27 @@ import { StepsModal } from "../components/common/Modal";
 
 const Home = () => {
   const [modalOpen, setModalOpen] = useState(false);
-  const openModal = useCallback(() => setModalOpen(true), []);
-  const closeModal = useCallback(() => setModalOpen(false), []);
+
+  const openModal = useCallback(() => {
+    setModalOpen(true);
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setModalOpen(false);
+  }, []);
+
   return (
     <>
       {modalOpen && <StepsModal isOpen={modalOpen} onClose={closeModal} />}
+
       <Hero openModal={openModal} />
+
       <Features />
+
       <Stats />
+
       <Testimonials />
+
       <CallToAction openModal={openModal} />
     </>
   );

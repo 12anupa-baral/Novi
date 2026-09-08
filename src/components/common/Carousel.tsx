@@ -30,11 +30,7 @@ function useMediaQuery(query: string) {
 
   const getServerSnapshot = useCallback(() => false, []);
 
-  return useSyncExternalStore(
-    subscribe,
-    getSnapshot,
-    getServerSnapshot,
-  );
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 
 export interface CarouselProps {
@@ -61,27 +57,16 @@ export const Carousel = ({
   peek = 20,
 }: CarouselProps) => {
   const isMobile = useMediaQuery("(max-width: 640px)");
-  const isTablet = useMediaQuery(
-    "(min-width: 641px) and (max-width: 1024px)",
-  );
+  const isTablet = useMediaQuery("(min-width: 641px) and (max-width: 1024px)");
 
   const totalItems = items.length;
 
-  const safeItemsPerView = Math.max(
-    1,
-    Math.min(itemsPerView, totalItems || 1),
-  );
+  const safeItemsPerView = Math.max(1, Math.min(itemsPerView, totalItems || 1));
 
   const cloneCount =
-    totalItems > 0
-      ? Math.min(safeItemsPerView, totalItems)
-      : 0;
+    totalItems > 0 ? Math.min(safeItemsPerView, totalItems) : 0;
 
-  const effectivePeek = isMobile
-    ? 0
-    : isTablet
-      ? 10
-      : peek;
+  const effectivePeek = isMobile ? 0 : isTablet ? 10 : peek;
 
   /*
    * --------------------------------------------------
@@ -102,71 +87,32 @@ export const Carousel = ({
   const isDraggingRef = useRef(false);
   const isTransitioningRef = useRef(false);
 
-  /*
-   * Used to prevent autoplay from firing while the
-   * user is interacting with the carousel.
-   */
   const interactionRef = useRef(false);
 
-  /*
-   * --------------------------------------------------
-   * React state
-   * --------------------------------------------------
-   */
-
-  const [virtualIndex, setVirtualIndex] =
-    useState(cloneCount);
+  const [virtualIndex, setVirtualIndex] = useState(cloneCount);
 
   const [isDragging, setIsDragging] = useState(false);
 
-  /*
-   * --------------------------------------------------
-   * Cloned slides
-   * --------------------------------------------------
-   */
-
   const clonedItems =
     totalItems > 0
-      ? [
-          ...items.slice(-cloneCount),
-          ...items,
-          ...items.slice(0, cloneCount),
-        ]
+      ? [...items.slice(-cloneCount), ...items, ...items.slice(0, cloneCount)]
       : [];
 
-  /*
-   * --------------------------------------------------
-   * Helpers
-   * --------------------------------------------------
-   */
+  const setTrackTransition = useCallback((enabled: boolean) => {
+    const track = trackRef.current;
 
-  const setTrackTransition = useCallback(
-    (enabled: boolean) => {
-      const track = trackRef.current;
+    if (!track) return;
 
-      if (!track) return;
-
-      track.style.transition = enabled
-        ? "transform 300ms ease-in-out"
-        : "none";
-    },
-    [],
-  );
+    track.style.transition = enabled ? "transform 300ms ease-in-out" : "none";
+  }, []);
 
   const updateTrackPosition = useCallback(
-    (
-      index: number,
-      dragOffset = 0,
-      animate = false,
-    ) => {
+    (index: number, dragOffset = 0, animate = false) => {
       const track = trackRef.current;
 
       if (!track || !itemWidthRef.current) return;
 
-      const offset =
-        index * itemWidthRef.current -
-        dragOffset -
-        effectivePeek;
+      const offset = index * itemWidthRef.current - dragOffset - effectivePeek;
 
       if (animate) {
         setTrackTransition(true);
@@ -177,31 +123,21 @@ export const Carousel = ({
     [effectivePeek, setTrackTransition],
   );
 
-  /*
-   * --------------------------------------------------
-   * Measure slide width
-   * --------------------------------------------------
-   */
-
   useEffect(() => {
     const track = trackRef.current;
 
     if (!track) return;
 
     const updateWidth = () => {
-      const firstChild =
-        track.firstElementChild as HTMLElement | null;
+      const firstChild = track.firstElementChild as HTMLElement | null;
 
       if (!firstChild) return;
 
-      itemWidthRef.current =
-        firstChild.getBoundingClientRect().width + gap;
+      itemWidthRef.current = firstChild.getBoundingClientRect().width + gap;
 
       updateTrackPosition(
         virtualIndexRef.current,
-        isDraggingRef.current
-          ? dragOffsetXRef.current
-          : 0,
+        isDraggingRef.current ? dragOffsetXRef.current : 0,
       );
     };
 
@@ -214,34 +150,15 @@ export const Carousel = ({
     return () => {
       observer.disconnect();
     };
-  }, [
-    gap,
-    safeItemsPerView,
-    updateTrackPosition,
-  ]);
-
-  /*
-   * --------------------------------------------------
-   * Sync virtual index
-   * --------------------------------------------------
-   */
+  }, [gap, safeItemsPerView, updateTrackPosition]);
 
   useEffect(() => {
     virtualIndexRef.current = virtualIndex;
   }, [virtualIndex]);
 
-  /*
-   * --------------------------------------------------
-   * Navigation
-   * --------------------------------------------------
-   */
-
   const goTo = useCallback(
     (index: number, animate = true) => {
-      if (
-        totalItems <= safeItemsPerView ||
-        isTransitioningRef.current
-      ) {
+      if (totalItems <= safeItemsPerView || isTransitioningRef.current) {
         return;
       }
 
@@ -259,11 +176,7 @@ export const Carousel = ({
         });
       }
     },
-    [
-      safeItemsPerView,
-      totalItems,
-      updateTrackPosition,
-    ],
+    [safeItemsPerView, totalItems, updateTrackPosition],
   );
 
   const next = useCallback(() => {
@@ -278,12 +191,6 @@ export const Carousel = ({
     goTo(virtualIndexRef.current - 1);
   }, [goTo, safeItemsPerView, totalItems]);
 
-  /*
-   * --------------------------------------------------
-   * Infinite loop
-   * --------------------------------------------------
-   */
-
   const handleTransitionEnd = useCallback(() => {
     isTransitioningRef.current = false;
 
@@ -292,11 +199,9 @@ export const Carousel = ({
     let newIndex: number | null = null;
 
     if (virtualIndexRef.current >= upperBound) {
-      newIndex =
-        virtualIndexRef.current - totalItems;
+      newIndex = virtualIndexRef.current - totalItems;
     } else if (virtualIndexRef.current < cloneCount) {
-      newIndex =
-        virtualIndexRef.current + totalItems;
+      newIndex = virtualIndexRef.current + totalItems;
     }
 
     if (newIndex === null) return;
@@ -306,34 +211,13 @@ export const Carousel = ({
     setTrackTransition(false);
 
     setVirtualIndex(newIndex);
-
-    /*
-     * Wait for the browser to apply transition:none
-     * before moving to the cloned position.
-     */
     requestAnimationFrame(() => {
       updateTrackPosition(newIndex);
     });
-  }, [
-    cloneCount,
-    totalItems,
-    setTrackTransition,
-    updateTrackPosition,
-  ]);
+  }, [cloneCount, totalItems, setTrackTransition, updateTrackPosition]);
 
-  /*
-   * --------------------------------------------------
-   * Pointer dragging
-   * --------------------------------------------------
-   */
-
-  const handlePointerDown = (
-    event: React.PointerEvent<HTMLDivElement>,
-  ) => {
-    if (
-      totalItems <= safeItemsPerView ||
-      isTransitioningRef.current
-    ) {
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (totalItems <= safeItemsPerView || isTransitioningRef.current) {
       return;
     }
 
@@ -350,35 +234,19 @@ export const Carousel = ({
 
     setTrackTransition(false);
 
-    event.currentTarget.setPointerCapture(
-      event.pointerId,
-    );
+    event.currentTarget.setPointerCapture(event.pointerId);
   };
 
-  const handlePointerMove = (
-    event: React.PointerEvent<HTMLDivElement>,
-  ) => {
-    if (
-      !isDraggingRef.current ||
-      pointerIdRef.current !== event.pointerId
-    ) {
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current || pointerIdRef.current !== event.pointerId) {
       return;
     }
 
-    const diff =
-      event.clientX - dragStartXRef.current;
+    const diff = event.clientX - dragStartXRef.current;
 
     dragOffsetXRef.current = diff;
 
-    /*
-     * Direct DOM update.
-     *
-     * No React render occurs here.
-     */
-    updateTrackPosition(
-      virtualIndexRef.current,
-      diff,
-    );
+    updateTrackPosition(virtualIndexRef.current, diff);
   };
 
   const finishDrag = useCallback(
@@ -396,15 +264,8 @@ export const Carousel = ({
 
       setIsDragging(false);
 
-      if (
-        event &&
-        event.currentTarget.hasPointerCapture(
-          event.pointerId,
-        )
-      ) {
-        event.currentTarget.releasePointerCapture(
-          event.pointerId,
-        );
+      if (event && event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
       }
 
       if (Math.abs(diff) >= dragThreshold) {
@@ -417,26 +278,12 @@ export const Carousel = ({
         return;
       }
 
-      /*
-       * Snap back to current slide.
-       */
-      updateTrackPosition(
-        virtualIndexRef.current,
-        0,
-        true,
-      );
+      updateTrackPosition(virtualIndexRef.current, 0, true);
     },
-    [
-      dragThreshold,
-      next,
-      prev,
-      updateTrackPosition,
-    ],
+    [dragThreshold, next, prev, updateTrackPosition],
   );
 
-  const handlePointerUp = (
-    event: React.PointerEvent<HTMLDivElement>,
-  ) => {
+  const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
     finishDrag(event);
   };
 
@@ -452,22 +299,10 @@ export const Carousel = ({
 
     setIsDragging(false);
 
-    updateTrackPosition(
-      virtualIndexRef.current,
-      0,
-      true,
-    );
+    updateTrackPosition(virtualIndexRef.current, 0, true);
   };
 
-  /*
-   * --------------------------------------------------
-   * Keyboard navigation
-   * --------------------------------------------------
-   */
-
-  const handleKeyDown = (
-    event: React.KeyboardEvent<HTMLDivElement>,
-  ) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "ArrowLeft") {
       event.preventDefault();
       prev();
@@ -479,17 +314,8 @@ export const Carousel = ({
     }
   };
 
-  /*
-   * --------------------------------------------------
-   * Autoplay
-   * --------------------------------------------------
-   */
-
   useEffect(() => {
-    if (
-      !autoPlay ||
-      totalItems <= safeItemsPerView
-    ) {
+    if (!autoPlay || totalItems <= safeItemsPerView) {
       return;
     }
 
@@ -506,18 +332,7 @@ export const Carousel = ({
     return () => {
       window.clearInterval(timer);
     };
-  }, [
-    autoPlay,
-    next,
-    safeItemsPerView,
-    totalItems,
-  ]);
-
-  /*
-   * --------------------------------------------------
-   * Reset when item count changes
-   * --------------------------------------------------
-   */
+  }, [autoPlay, next, safeItemsPerView, totalItems]);
 
   useEffect(() => {
     if (totalItems === 0) return;
@@ -528,38 +343,19 @@ export const Carousel = ({
 
     isTransitioningRef.current = false;
 
-    setVirtualIndex(newIndex);
-
     setTrackTransition(false);
+    requestAnimationFrame(() => {
+      setVirtualIndex(newIndex);
+    });
 
     requestAnimationFrame(() => {
       updateTrackPosition(newIndex);
     });
-  }, [
-    cloneCount,
-    totalItems,
-    setTrackTransition,
-    updateTrackPosition,
-  ]);
-
-  /*
-   * --------------------------------------------------
-   * Empty state
-   * --------------------------------------------------
-   */
+  }, [cloneCount, totalItems, setTrackTransition, updateTrackPosition]);
 
   if (totalItems === 0) {
     return null;
   }
-
-  /*
-   * --------------------------------------------------
-   * Dynamic layout styles
-   * --------------------------------------------------
-   *
-   * These are intentionally inline because their
-   * values are calculated at runtime.
-   */
 
   const containerStyle: CSSProperties = {
     paddingLeft: effectivePeek,
@@ -571,12 +367,9 @@ export const Carousel = ({
     / ${safeItemsPerView}
   )`;
 
-  const realIndex =
-    (virtualIndex - cloneCount + totalItems) %
-    totalItems;
+  const realIndex = (virtualIndex - cloneCount + totalItems) % totalItems;
 
-  const showControls =
-    totalItems > safeItemsPerView;
+  const showControls = totalItems > safeItemsPerView;
 
   return (
     <div
@@ -588,18 +381,13 @@ export const Carousel = ({
       onKeyDown={handleKeyDown}
     >
       {/* Track container */}
-      <div
-        className="overflow-visible py-8"
-        style={containerStyle}
-      >
+      <div className="overflow-visible py-8" style={containerStyle}>
         <div
           className={[
             "select-none",
             "overflow-visible",
             "touch-pan-y",
-            isDragging
-              ? "cursor-grabbing"
-              : "cursor-grab",
+            isDragging ? "cursor-grabbing" : "cursor-grab",
           ].join(" ")}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
@@ -617,10 +405,7 @@ export const Carousel = ({
                 className="shrink-0 overflow-visible"
                 style={{
                   width: slideWidth,
-                  marginRight:
-                    index === clonedItems.length - 1
-                      ? 0
-                      : gap,
+                  marginRight: index === clonedItems.length - 1 ? 0 : gap,
                 }}
               >
                 {item}
@@ -659,10 +444,7 @@ export const Carousel = ({
               cursor-pointer
             "
           >
-            <ChevronLeft
-              aria-hidden="true"
-              className="h-4 w-4"
-            />
+            <ChevronLeft aria-hidden="true" className="h-4 w-4" />
           </button>
 
           <button
@@ -691,10 +473,7 @@ export const Carousel = ({
               cursor-pointer
             "
           >
-            <ChevronRight
-              aria-hidden="true"
-              className="h-4 w-4"
-            />
+            <ChevronRight aria-hidden="true" className="h-4 w-4" />
           </button>
         </>
       )}
@@ -706,43 +485,36 @@ export const Carousel = ({
           role="tablist"
           aria-label="Carousel slides"
         >
-          {Array.from({ length: totalItems }).map(
-            (_, index) => {
-              const isActive =
-                index === realIndex;
+          {Array.from({ length: totalItems }).map((_, index) => {
+            const isActive = index === realIndex;
 
-              return (
-                <button
-                  key={index}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  aria-label={`Go to slide ${
-                    index + 1
-                  }`}
-                  onClick={() =>
-                    goTo(cloneCount + index)
-                  }
-                  className={[
-                    "h-2 rounded-full",
-                    "transition-all duration-200",
-                    "focus-visible:outline-none",
-                    "focus-visible:ring-2",
-                    "focus-visible:ring-[var(--focus-ring)]",
-                    "focus-visible:ring-offset-2",
-                    "cursor-pointer",
-                    isActive
-                      ? "w-6 bg-[var(--accent)]"
-                      : [
-                          "w-2",
-                          "bg-[var(--fg-dim)]",
-                          "hover:bg-[var(--fg-muted)]",
-                        ].join(" "),
-                  ].join(" ")}
-                />
-              );
-            },
-          )}
+            return (
+              <button
+                key={index}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                aria-label={`Go to slide ${index + 1}`}
+                onClick={() => goTo(cloneCount + index)}
+                className={[
+                  "h-2 rounded-full",
+                  "transition-all duration-200",
+                  "focus-visible:outline-none",
+                  "focus-visible:ring-2",
+                  "focus-visible:ring-[var(--focus-ring)]",
+                  "focus-visible:ring-offset-2",
+                  "cursor-pointer",
+                  isActive
+                    ? "w-6 bg-[var(--accent)]"
+                    : [
+                        "w-2",
+                        "bg-[var(--fg-dim)]",
+                        "hover:bg-[var(--fg-muted)]",
+                      ].join(" "),
+                ].join(" ")}
+              />
+            );
+          })}
         </div>
       )}
     </div>

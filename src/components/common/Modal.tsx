@@ -21,7 +21,7 @@ const FOCUSABLE_SELECTOR = [
   "select:not([disabled])",
   "textarea:not([disabled])",
   "[tabindex]:not([tabindex='-1'])",
-].join(",");
+].join(", ");
 
 const sizeClasses = {
   sm: "max-w-sm",
@@ -60,7 +60,7 @@ export const Modal = ({
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
-    requestAnimationFrame(() => {
+    const frame = requestAnimationFrame(() => {
       const firstFocusable =
         dialogRef.current?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
 
@@ -68,6 +68,7 @@ export const Modal = ({
     });
 
     return () => {
+      cancelAnimationFrame(frame);
       document.body.style.overflow = previousOverflow;
     };
   }, [isOpen]);
@@ -209,16 +210,11 @@ interface StepsModalProps {
 }
 
 export const StepsModal = ({ isOpen, onClose }: StepsModalProps) => {
+
   const [step, setStep] = useState(0);
 
   const totalSteps = STEPS.length;
   const currentStep = STEPS[step];
-
-  useEffect(() => {
-    if (isOpen) {
-      setStep(0);
-    }
-  }, [isOpen]);
 
   const handleBack = () => {
     setStep((current) => Math.max(0, current - 1));
@@ -236,6 +232,7 @@ export const StepsModal = ({ isOpen, onClose }: StepsModalProps) => {
       onClose={onClose}
       showCloseButton
       ariaLabel={`How Novi works — step ${step + 1} of ${totalSteps}: ${currentStep.title}`}
+      size="lg"
     >
       {/* Step indicators */}
       <div
@@ -274,10 +271,10 @@ export const StepsModal = ({ isOpen, onClose }: StepsModalProps) => {
         })}
       </div>
 
-      {/* Visual */}
+      {/* Step visual */}
       {currentStep.visual}
 
-      {/* Text */}
+      {/* Step text */}
       <div className="mt-5">
         <div
           className="
