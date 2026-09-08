@@ -20,7 +20,7 @@ A modern, responsive landing page for **Novi** – a calm workspace for small, f
 
 | Technology                                       | Purpose                 |
 | ------------------------------------------------ | ----------------------- |
-| [React 18](https://reactjs.org/)                 | UI library              |
+| [React 19](https://reactjs.org/)                 | UI library              |
 | [TypeScript](https://www.typescriptlang.org/)    | Type safety             |
 | [Vite](https://vitejs.dev/)                      | Build tool & dev server |
 | [Tailwind CSS](https://tailwindcss.com/)         | Utility‑first CSS       |
@@ -32,11 +32,15 @@ A modern, responsive landing page for **Novi** – a calm workspace for small, f
 src/
 ├── components/
 │ ├── common/ # Reusable UI primitives
-│ │ ├── Button/
-│ │ ├── Card/
-│ │ ├── Input/
-│ │ ├── Modal/
-│ │ └── Carousel/
+│ │ ├── Button.tsx
+│ │ ├── Card.tsx
+│ │ ├── Input.tsx
+│ │ ├── Modal.tsx
+│ │ └── Carousel.tsx
+│ │ └── ErrorBoundary.tsx
+│ │ └── ButtonLinks.tsx
+│ │ └── FadeIn.tsx
+│ │ └── FeatureCard.tsx
 │ ├── layout/ # Layout components
 │ │ ├── Nav/
 │ │ └── Footer/
@@ -45,18 +49,24 @@ src/
 │ │ ├── Features/
 │ │ ├── Stats/
 │ │ ├── Testimonials/
-│ │ └── CTA/
+│ │ └── CallToAction/
 │ ├── ui/ # Complex interactive components
 │ │ ├── LiveBoard/
-│ │ └── StepsModal/
 │ └── icons/ # Custom SVG icons
 ├── data/ # Mock data & constants
 │ └── mockdata.ts
+│ └──StepsVisual.tsx
 ├── hooks/ # Custom React hooks
-│ ├── useFadeIn.ts
 │ └── useCountUp.ts
-├── theme/ # Design tokens
-│ └── color.ts
+├── pages/ 
+│ └── About.tsx
+│ └── Blog.tsx
+│ └── Home.tsx
+│ └── NotFound.tsx
+│ └── Pricing.tsx
+│ └── Product.tsx
+├── routes/
+│ └── AppRoutes.tsx
 ├── App.tsx
 ├── main.tsx
 └── index.css
